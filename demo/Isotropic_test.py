@@ -267,7 +267,7 @@ def update(context):
         Re_lam = np.sqrt(20*kk**2/(3*params.nu*eps))
         Re_lam2 = kk*np.sqrt(20./3.)/(params.nu*params.kd)**2
 
-        Re_lam3 = kk*np.sqrt(20./(3.params.nu*params.eps_forcing))
+        Re_lam3 = kk*np.sqrt(20./(3.*params.nu*params.eps_forcing))
 
         kold[0] = energy_new
         e0, e1 = energy_new, L2_norm(solver.comm, c.U)
@@ -368,10 +368,10 @@ if __name__ == "__main__":
     f["Turbulence"].create_dataset("bins", data=bins)
     f.close()
 
-    # Advance simulation
-    solve(solver, context)
+    # # Advance simulation
+    # solve(solver, context)
 
-    # Save simulation
-    from mpi4py_fft import generate_xdmf
-    if solver.rank == 0:
-        generate_xdmf(context.hdf5file.filename+"_w.h5")
+    # # Save simulation
+    # from mpi4py_fft import generate_xdmf
+    # if solver.rank == 0:
+    #     generate_xdmf(context.hdf5file.filename+"_w.h5")
