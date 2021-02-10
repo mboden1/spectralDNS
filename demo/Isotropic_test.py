@@ -88,7 +88,7 @@ def initialize(solver, context):
     config.params.tstep = 0
     c.target_energy = energy_fourier(c.U_hat, c.T)
 
-    print(target,target_energy)
+    print(target,c.target_energy)
 
 def L2_norm(comm, u):
     r"""Compute the L2-norm of real array a
