@@ -325,6 +325,9 @@ if __name__ == "__main__":
     config.triplyperiodic.add_argument("--kd", type=float, default=50.)
     config.triplyperiodic.add_argument("--Re_lam", type=float, default=84.)
 
+    # Define solver
+    solver = get_solver(update=update, mesh="triplyperiodic")
+    context = solver.get_context()
 
     # Turbulence parameters
     eps, nu, L_k, T_k, U_k = get_turbulence_params(config.params.Re_lam)
@@ -341,9 +344,7 @@ if __name__ == "__main__":
 
     # config.params.nu = (1./config.params.kd**(4./3.))
 
-    # Define solver
-    solver = get_solver(update=update, mesh="triplyperiodic")
-    context = solver.get_context()
+
 
     # Initialize turbulence
     initialize(solver, context)
