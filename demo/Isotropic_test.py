@@ -26,7 +26,7 @@ except ImportError:
     warnings.warn("matplotlib not installed")
     plt = None
 
-def epsNuFromRe(Re, uEta = 1.0):
+def get_turbulence_params(Re, uEta = 1.0):
     C = 3.0 # np.sqrt(196.0/20.0) #2.87657077
     K = 2/3.0 * C * np.sqrt(15)
     eps = np.power(uEta*uEta * Re / K, 3.0/2.0)
@@ -267,6 +267,8 @@ def update(context):
         Re_lam = np.sqrt(20*kk**2/(3*params.nu*eps))
         Re_lam2 = kk*np.sqrt(20./3.)/(params.nu*params.kd)**2
 
+        Re_lam3 = kk*np.sqrt(20./(3.params.nu*params.eps_forcing))
+
         kold[0] = energy_new
         e0, e1 = energy_new, L2_norm(solver.comm, c.U)
         ww4 = (energy_new-energy_old)/2/params.dt
@@ -274,7 +276,7 @@ def update(context):
         if solver.rank == 0:
             k.append(energy_new)
             w.append(dissipation)
-            print('%2.4f %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e'%(params.t, e0, e1, eps_forcing, eps, ww2, ww3, ww4, Re_lam, Re_lam2),flush=True)
+            print('%2.4f %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e'.format(params.t, e0, e1, eps_forcing, eps, ww2, ww3, ww4, Re_lam, Re_lam2, Re_lam3),flush=True)
 
     #if params.tstep % params.compute_energy == 1:
         #if 'NS' in params.solver:
@@ -302,6 +304,8 @@ def init_from_file(filename, solver, context):
 
 if __name__ == "__main__":
     import h5py
+    
+    # Parameters
     config.update(
         {'nu': 0.005428,              # Viscosity (not used, see below)
          'dt': 0.002,                 # Time step
@@ -315,41 +319,59 @@ if __name__ == "__main__":
     config.triplyperiodic.add_argument("--N", default=[64, 64, 64], nargs=3,
                                        help="Mesh size. Trumps M.")
     config.triplyperiodic.add_argument("--compute_energy", type=int, default=100)
-    config.triplyperiodic.add_argument("--compute_spectrum", type=int, default=1000)
+    config.triplyperiodic.add_argument("--compute_spectrum", type=int, default=100)
     config.triplyperiodic.add_argument("--plot_step", type=int, default=1000)
     config.triplyperiodic.add_argument("--Kf2", type=int, default=3)
     config.triplyperiodic.add_argument("--kd", type=float, default=50.)
     config.triplyperiodic.add_argument("--Re_lam", type=float, default=84.)
-    sol = get_solver(update=update, mesh="triplyperiodic")
+    context.hdf5file.filename = "NS_isotropic_{}_{}_{}".format(*config.params.N)
 
-    eps, nu, L_k, T_k, U_k = epsNuFromRe(config.params.Re_lam)
+
+    # Turbulence parameters
+    eps, nu, L_k, T_k, U_k = get_turbulence_params(config.params.Re_lam)
     config.params.nu = nu
     config.params.eps_forcing = eps
     config.params.L_k = L_k
     config.params.T_k = T_k
     config.params.U_k = U_k
 
-    config.params.dt = T_k/32.0
+    config.params.dt = T_k/32.0 # Set time step to 1/32 the kolmogorov time step
 
     print('Re_tau {}, resulting eps {}, nu {}'.format(config.params.Re_lam,config.params.eps_forcing,config.params.nu))
     print('Kolmogorov time scale {}, dt {}'.format(config.params.T_k,config.params.dt))
 
     # config.params.nu = (1./config.params.kd**(4./3.))
 
-    context = sol.get_context()
-    initialize(sol, context)
-    #init_from_file("NS_isotropic_60_60_60_c.h5", sol, context)
-    context.hdf5file.filename = "NS_isotropic_{}_{}_{}".format(*config.params.N)
+    # Define solver
+    solver = get_solver(update=update, mesh="triplyperiodic")
+    context = solver.get_context()
 
-    Ek, bins, E0, E1, E2 = spectrum(sol, context)
+    # Initialize turbulence
+    initialize(solver, context)
+
+    # Get initial power spectrum
+    Ek, bins, E0, E1, E2 = spectrum(solver, context)
+
+    E = E0+E1+E2
+    print(E,np.sum(Ek))
+
+    L_I = 3*np.pi/(4*E)np.trapz(E_k/bins,x=bins)
+    T_I = L_I/np.sqrt(2*E/3)
+
+
+    # Save initial power spectrum
     context.spectrumname = context.hdf5file.filename+".h5"
-    f = h5py.File(context.spectrumname, mode='w', driver='mpio', comm=sol.comm)
+    f = h5py.File(context.spectrumname, mode='w', driver='mpio', comm=solver.comm)
     f.create_group("Turbulence")
     f["Turbulence"].create_group("Ek")
     bins = np.array(bins)
     f["Turbulence"].create_dataset("bins", data=bins)
     f.close()
-    solve(sol, context)
+
+    # Advance simulation
+    solve(solver, context)
+
+    # Save simulation
     from mpi4py_fft import generate_xdmf
-    if sol.rank == 0:
+    if solver.rank == 0:
         generate_xdmf(context.hdf5file.filename+"_w.h5")
