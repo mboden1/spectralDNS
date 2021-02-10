@@ -198,7 +198,7 @@ def update(context):
 
     energy_new = energy_fourier(c.U_hat, c.T)
 
-    assert np.sqrt((energy_new-c.target_energy)**2) < 1e-7, np.sqrt((energy_new-c.target_energy)**2)
+    # assert np.sqrt((energy_new-c.target_energy)**2) < 1e-7, np.sqrt((energy_new-c.target_energy)**2)
 
     if params.solver == 'VV':
         c.W_hat = solver.cross2(c.W_hat, c.K, c.U_hat)
@@ -331,7 +331,7 @@ if __name__ == "__main__":
 
     config.params.dt = T_k/32.0
 
-    print('Re_tau {}, resulting eps {}, nu {}'.format(config.params.Re_lam,config.params.nu,config.params.eps_forcing))
+    print('Re_tau {}, resulting eps {}, nu {}'.format(config.params.Re_lam,config.params.eps_forcing,config.params.nu))
     print('Kolmogorov time scale {}, dt {}'.format(config.params.T_k,config.params.dt))
 
     # config.params.nu = (1./config.params.kd**(4./3.))
