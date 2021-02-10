@@ -355,7 +355,7 @@ if __name__ == "__main__":
     E = E0+E1+E2
     print(E,np.sum(Ek))
 
-    L_I = 3*np.pi/(4*E)np.trapz(E_k/bins,x=bins)
+    L_I = 3*np.pi/(4*E)*np.trapz(E_k/bins,x=bins)
     T_I = L_I/np.sqrt(2*E/3)
 
 
