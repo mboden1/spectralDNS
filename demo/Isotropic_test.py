@@ -274,7 +274,7 @@ def update(context):
         if solver.rank == 0:
             k.append(energy_new)
             w.append(dissipation)
-            print('%2.4f %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e'%(params.t, e0, e1, eps_forcing, eps, ww2, ww3, ww4, Re_lam, Re_lam2))
+            print('%2.4f %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e'%(params.t, e0, e1, eps_forcing, eps, ww2, ww3, ww4, Re_lam, Re_lam2),flush=True)
 
     #if params.tstep % params.compute_energy == 1:
         #if 'NS' in params.solver:
