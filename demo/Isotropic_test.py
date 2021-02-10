@@ -120,7 +120,8 @@ def spectrum(solver, context):
         k0 = bins[i] # lower limit, k is upper
         ii = np.where((z > k0) & (z <= k))
         ll[i] = len(ii[0])
-        Ek[i] = (k**3 - k0**3)*np.sum(uiui[ii])
+        # Ek[i] = (k**3 - k0**3)*np.sum(uiui[ii])
+        Ek[i] = np.sum(uiui[ii])
 
     Ek = solver.comm.allreduce(Ek)
     ll = solver.comm.allreduce(ll)
@@ -272,7 +273,7 @@ def update(context):
         Re_lam3 = kk*np.sqrt(20./(3.*params.nu*params.eps_forcing))
 
         kold[0] = energy_new
-        e0, e1 = energy_new, L2_norm(solver.comm, c.U)
+        e0, e1 = 0.5*energy_new, 0.5*L2_norm(solver.comm, c.U)
         ww4 = (energy_new-energy_old)/2/params.dt
         eps_forcing = params.eps_forcing
         if solver.rank == 0:
