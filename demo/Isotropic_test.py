@@ -353,7 +353,7 @@ if __name__ == "__main__":
     # Get initial power spectrum
     Ek, bins, E0, E1, E2 = spectrum(solver, context)
 
-    E = E0+E1+E2
+    E = context.target_energy
     print(E,np.sum(Ek))
 
     L_I = 3*np.pi/(4*E)*np.trapz(E_k/bins,x=bins)
