@@ -324,7 +324,6 @@ if __name__ == "__main__":
     config.triplyperiodic.add_argument("--Kf2", type=int, default=3)
     config.triplyperiodic.add_argument("--kd", type=float, default=50.)
     config.triplyperiodic.add_argument("--Re_lam", type=float, default=84.)
-    context.hdf5file.filename = "NS_isotropic_{}_{}_{}".format(*config.params.N)
 
 
     # Turbulence parameters
@@ -348,6 +347,7 @@ if __name__ == "__main__":
 
     # Initialize turbulence
     initialize(solver, context)
+    context.hdf5file.filename = "NS_isotropic_{}_{}_{}".format(*config.params.N)
 
     # Get initial power spectrum
     Ek, bins, E0, E1, E2 = spectrum(solver, context)
