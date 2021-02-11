@@ -299,6 +299,7 @@ if __name__ == "__main__":
     config.triplyperiodic.add_argument("--plot_step", type=int, default=1000)
     config.triplyperiodic.add_argument("--Kf2", type=int, default=3)
     config.triplyperiodic.add_argument("--kd", type=float, default=50.)
+    
     config.triplyperiodic.add_argument("--Re_lam", type=float, default=100.)
     config.triplyperiodic.add_argument("--forcing_mode", type=str, default="constant_eps")
 
@@ -315,8 +316,8 @@ if __name__ == "__main__":
     config.params.U_k = U_k
 
     config.params.dt = T_k/config.params.N[0] # Set time step to 1/N the kolmogorov time step
-    config.params.compute_energy = config.params.N[0]   # Compute energy every komlmogorv time scale
-    config.params.compute_spectrum = config.params.N[0] # Compute spectrum every komlmogorv time scale
+    config.params.compute_energy = 32   # Compute energy every komlmogorv time scale
+    config.params.compute_spectrum = 32 # Compute spectrum every komlmogorv time scale
 
     # Initialize turbulence
     initialize(solver, context)
