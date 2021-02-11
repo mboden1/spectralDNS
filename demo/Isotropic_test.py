@@ -333,6 +333,7 @@ if __name__ == "__main__":
     context = solver.get_context()
 
     # Turbulence parameters
+    Re_lam = config.params.Re_lam
     eps, nu, L_k, T_k, U_k = get_turbulence_params(config.params.Re_lam)
     config.params.nu = nu
     config.params.eps_forcing = eps
@@ -366,7 +367,7 @@ if __name__ == "__main__":
     config.params.T = 10*T_I
     print('Total simulation time {}, total time steps {}'.format(config.params.T,config.params.T/config.params.dt),flush=True)
     
-    print('L/eta {} Re^3/4{}'.format(config.params.L_I/config.params.L_k,config.params.Re_lam**(3./4)))
+    print('L/eta {} Re^3/4{}'.format(config.params.L_I/config.params.L_k,Re_lam**(3./4)))
 
     # Save initial power spectrum
     context.spectrumname = context.hdf5file.filename+".h5"
