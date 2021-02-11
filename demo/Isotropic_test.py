@@ -268,21 +268,27 @@ def update(context):
 
         kk = 0.5*energy_new
         eps = dissipation*params.nu
-        Re_lam = np.sqrt(20*kk**2/(3*params.nu*eps))
-        Re_lam2 = kk*np.sqrt(20./3.)/(params.nu*params.kd)**2
-
-        Re_lam3 = kk*np.sqrt(20./(3.*params.nu*params.eps_forcing))
+        Re_lam_eps_dissipation = np.sqrt(20*kk**2/(3*params.nu*eps))
+        Re_lam_eps_forcing = np.sqrt(20*kk**2/(3*params.nu*params.eps_forcing))
 
         kold[0] = energy_new
-        e0, e1 = 0.5*energy_new, 0.5*L2_norm(solver.comm, c.U)
+        e_old, e_current = 0.5*energy_new, 0.5*L2_norm(solver.comm, c.U)
         ww4 = (energy_new-energy_old)/2/params.dt
         eps_forcing = params.eps_forcing
         if solver.rank == 0:
             k.append(energy_new)
             w.append(dissipation)
-            print('%2.4f %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e'.format(params.t, e0, e1, eps_forcing, eps, ww2, ww3, ww4, Re_lam, Re_lam2, Re_lam3),flush=True)
+            print('{t:.4f} {e_current:.6e} {eps_forcing:.6e} {eps:.6e} {ww2:.6e} {ww3:.6e} {ww4:.6e} {Re_lam_eps_dissipation:.6e} {Re_lam_eps_forcing:.6e}'.format(
+                    t=params.t, e_current=e_current, eps_forcing=eps_forcing, eps=eps, 
+                    ww2=ww2, ww3=ww3, ww4=ww4, 
+                    Re_lam_eps_dissipation=Re_lam_eps_dissipation, Re_lam_eps_forcing=Re_lam_eps_forcing),flush=True)
 
-            turb_qty = {'E':e1,'eps_forcing':eps_forcing,'ww2':ww2,'ww3':ww3,'ww4':ww4,'Re_lam_eps_dissipation':Re_lam,'Re_lam_eps_forcing':Re_lam3}
+            turb_qty = {'E':e_current,'eps_forcing':eps_forcing,
+                        'ww2':ww2,'ww3':ww3,'ww4':ww4,
+                        'Re_lam_eps_dissipation':Re_lam_eps_dissipation,
+                        'Re_lam_eps_forcing':Re_lam_eps_forcing
+                        }
+                        
             f = h5py.File(context.spectrumname)
             f['Turbulence/TurbQty'].create_dataset(str(params.tstep), data=str(turb_qty))
             f.close()
