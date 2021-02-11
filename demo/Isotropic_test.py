@@ -300,6 +300,7 @@ if __name__ == "__main__":
     config.triplyperiodic.add_argument("--Kf2", type=int, default=3)
     config.triplyperiodic.add_argument("--kd", type=float, default=50.)
     config.triplyperiodic.add_argument("--Re_lam", type=float, default=100.)
+    config.triplyperiodic.add_argument("--forcing_mode", type=str, default="constant_eps")
 
     # Define solver
     solver = get_solver(update=update, mesh="triplyperiodic")
