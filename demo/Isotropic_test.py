@@ -120,8 +120,8 @@ def spectrum(solver, context):
         k0 = bins[i] # lower limit, k is upper
         ii = np.where((z > k0) & (z <= k))
         ll[i] = len(ii[0])
-        # Ek[i] = (k**3 - k0**3)*np.sum(uiui[ii])
-        Ek[i] = np.sum(uiui[ii])
+        Ek[i] = (k**3 - k0**3)*np.sum(uiui[ii])
+        # Ek[i] = np.sum(uiui[ii])
 
     Ek = solver.comm.allreduce(Ek)
     ll = solver.comm.allreduce(ll)
