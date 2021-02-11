@@ -12,6 +12,9 @@
 *.avi
 *.gif
 
+spectralDNS.egg-info/
+dist/
+build/
 .cache/
 .pytest_cache/
 __pycache__/
