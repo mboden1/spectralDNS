@@ -282,10 +282,11 @@ def update(context):
             w.append(dissipation)
             print('%2.4f %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e'.format(params.t, e0, e1, eps_forcing, eps, ww2, ww3, ww4, Re_lam, Re_lam2, Re_lam3),flush=True)
 
-        turb_qty = {'E':e1,'eps_forcing':eps_forcing,'ww2':ww2,'ww3':ww3,'ww4':ww4,'Re_lam_eps_dissipation':Re_lam,'Re_lam_eps_forcing':Re_lam3}
-        f = h5py.File(context.spectrumname, driver='mpio', comm=solver.comm)
-        f['Turbulence/TurbQty'].create_dataset(str(params.tstep), data=str(turb_qty))
-        f.close()
+            turb_qty = {'E':e1,'eps_forcing':eps_forcing,'ww2':ww2,'ww3':ww3,'ww4':ww4,'Re_lam_eps_dissipation':Re_lam,'Re_lam_eps_forcing':Re_lam3}
+            f = h5py.File(context.spectrumname)
+            f['Turbulence/TurbQty'].create_dataset(str(params.tstep), data=str(turb_qty))
+            f.close()
+
     #if params.tstep % params.compute_energy == 1:
         #if 'NS' in params.solver:
             #kk2 = comm.reduce(sum(U.astype(float64)*U.astype(float64))*dx[0]*dx[1]*dx[2]/L[0]/L[1]/L[2]/2)
@@ -326,8 +327,8 @@ if __name__ == "__main__":
     )
     config.triplyperiodic.add_argument("--N", default=[64, 64, 64], nargs=3,
                                        help="Mesh size. Trumps M.")
-    config.triplyperiodic.add_argument("--compute_energy", type=int, default=100)
-    config.triplyperiodic.add_argument("--compute_spectrum", type=int, default=100)
+    config.triplyperiodic.add_argument("--compute_energy", type=int, default=10)
+    config.triplyperiodic.add_argument("--compute_spectrum", type=int, default=10)
     config.triplyperiodic.add_argument("--plot_step", type=int, default=1000)
     config.triplyperiodic.add_argument("--Kf2", type=int, default=3)
     config.triplyperiodic.add_argument("--kd", type=float, default=50.)
