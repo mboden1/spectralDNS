@@ -344,6 +344,7 @@ if __name__ == "__main__":
 
     print('Re_tau {}, resulting eps {}, nu {}'.format(config.params.Re_lam,config.params.eps_forcing,config.params.nu))
     print('Kolmogorov time scale {}, dt {}'.format(config.params.T_k,config.params.dt))
+    print('Kolmogorov length scale {}'.format(config.params.L_k))
 
     # config.params.nu = (1./config.params.kd**(4./3.))
 
@@ -365,6 +366,8 @@ if __name__ == "__main__":
     config.params.T = 10*T_I
     print('Total simulation time {}, total time steps {}'.format(config.params.T,config.params.T/config.params.dt),flush=True)
     
+    print('L/eta {} Re^3/4{}'.format(config.params.L_I/config.params.L_k,config.params.Re_lam**(3./4)))
+
     # Save initial power spectrum
     context.spectrumname = context.hdf5file.filename+".h5"
     f = h5py.File(context.spectrumname, mode='w', driver='mpio', comm=solver.comm)
