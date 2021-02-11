@@ -239,7 +239,7 @@ def update(context):
         dU = solver.ComputeRHS(c.dU, c.U_hat, solver, **c)
         for i in range(3):
             ddU[i] = c.T.backward(dU[i], ddU[i])
-        eps_rhs = solver.comm.allreduce(sum(ddU*c.U))/np.prod(params.N)
+        eps_rhs = -solver.comm.allreduce(sum(ddU*c.U))/np.prod(params.N)
 
         # Compute dissipation from rate of change of energy
         e_current = 0.5*L2_norm(solver.comm, c.U)
@@ -262,7 +262,7 @@ def update(context):
             w.append(dissipation)
 
             if params.tstep % (params.compute_energy*10) == 0:
-                print(' Tstep    Time  Energy  eps_forcing   eps_l2vort      eps_l2J      eps_rhs     eps_dEdt    Re_dissip   Re_forcing')            
+                print(' Tstep    Time  Energy  eps_forcing   eps_l2vort      eps_l2J      eps_rhs         dEdt    Re_dissip   Re_forcing')            
             print('{tstep:6d} {t:7.4f} {e_current:7.4f} {eps_forcing:12.4f} {eps_l2vort:12.4f} {eps_l2J:12.4f} {eps_rhs:12.4f} {eps_dEdt:12.4f} {Re_lam_eps_dissipation:12.4f} {Re_lam_eps_forcing:12.4f}'.format(
                     tstep=params.tstep,t=params.t, e_current=e_current, eps_forcing=eps_forcing, eps_l2vort=eps_l2vort, 
                     eps_l2J=eps_l2J, eps_rhs=eps_rhs, eps_dEdt=eps_dEdt, 
@@ -344,21 +344,22 @@ if __name__ == "__main__":
     # Advance simulation
     if solver.rank == 0:
 
-        print('Running Homogenou Isotropic Turbulence N={} \n'.format(config.params.N[0]))
-        print('Turbulence quantities:')
-        print('Re_tau {}, resulting eps {:.5f}, nu {:.5f}'.format(config.params.Re_lam,config.params.eps_forcing,config.params.nu))
-        print('Kolmogorov time scale {:.5f}, dt = L_k/N {:.5f}'.format(config.params.T_k,config.params.dt))
-        print('Kolmogorov length scale {:.5f} \n'.format(config.params.L_k))
+        print('#-------------------------------------------------------------- #')
+        print(' Running Homogenou Isotropic Turbulence N={} \n'.format(config.params.N[0]))
+        print(' Turbulence quantities:')
+        print('     Re_tau {}, resulting eps {:.5f}, nu {:.5f}'.format(config.params.Re_lam,config.params.eps_forcing,config.params.nu))
+        print('     Kolmogorov time scale {:.5f}, dt = L_k/N {:.5f}'.format(config.params.T_k,config.params.dt))
+        print('     Kolmogorov length scale {:.5f} \n'.format(config.params.L_k))
         
-        print('From initialization: E={:.5f}'.format(E))
-        print('Integral length scale {:.5f} time scale {:.5f}'.format(L_I,T_I),flush=True)
-        print('Total simulation time = 30*L_I = {:.5f}, total time steps {}'.format(config.params.T,config.params.T/config.params.dt),flush=True)
-        print('Scalings:')
-        print('L/eta {:.5f} = Re^3/4 {:.5f}'.format(L_I/config.params.L_k,config.params.Re_lam**(3./4)))
-        print('T_I/T_k {} = Re^1/2 {:.5f} \n'.format(T_I/config.params.T_k,config.params.Re_lam**(1./2)))
+        print(' From initialization: E={:.5f}'.format(E))
+        print('     Integral length scale {:.5f} time scale {:.5f}'.format(L_I,T_I),flush=True)
+        print('     Total simulation time = 30*L_I = {:.5f}, total time steps {}'.format(config.params.T,np.floor(config.params.T/config.params.dt)),flush=True)
+        print(' Scalings:')
+        print('     L/eta {:.5f} = Re^3/4 {:.5f}'.format(L_I/config.params.L_k,config.params.Re_lam**(3./4)))
+        print('     T_I/T_k {} = Re^1/2 {:.5f} \n'.format(T_I/config.params.T_k,config.params.Re_lam**(1./2)))
 
-        print('Running simulations:')
-        print(' Tstep    Time  Energy  eps_forcing   eps_l2vort      eps_l2J      eps_rhs     eps_dEdt    Re_dissip   Re_forcing')            
+        print(' Running simulations:')
+        print(' Tstep    Time  Energy  eps_forcing   eps_l2vort      eps_l2J      eps_rhs         dEdt    Re_dissip   Re_forcing',flush=True)            
 
     solve(solver, context)
 
