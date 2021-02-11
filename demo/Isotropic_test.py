@@ -29,8 +29,8 @@ except ImportError:
 def get_turbulence_params(Re, uEta = 1.0):
     C = 3.0 # np.sqrt(196.0/20.0) #2.87657077
     # K = 2/3.0 * C * np.sqrt(15)
-    K = (Re/np.sqrt(60))**(3./2.)
-    eps = np.power(uEta*uEta * Re / K, 3.0/2.0)
+    eps = (Re/np.sqrt(60))**(3./2.)
+    # eps = np.power(uEta*uEta * Re / K, 3.0/2.0)
     nu = np.power(uEta, 4) / eps
 
     L_k = (nu**3/eps)**0.25
