@@ -282,10 +282,10 @@ def update(context):
             w.append(dissipation)
             print('%2.4f %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e'.format(params.t, e0, e1, eps_forcing, eps, ww2, ww3, ww4, Re_lam, Re_lam2, Re_lam3),flush=True)
 
-            turb_qty = {'E':e1,'eps_forcing':eps_forcing,'ww2':ww2,'ww3':ww3,'ww4':ww4,'Re_lam_eps_dissipation':Re_lam,'Re_lam_eps_forcing':Re_lam3}
-            f = h5py.File(context.spectrumname)
-            f['Turbulence/TurbQty'].create_dataset(str(params.tstep), data=str(turb_qty))
-            f.close()
+            # turb_qty = {'E':e1,'eps_forcing':eps_forcing,'ww2':ww2,'ww3':ww3,'ww4':ww4,'Re_lam_eps_dissipation':Re_lam,'Re_lam_eps_forcing':Re_lam3}
+            # f = h5py.File(context.spectrumname)
+            # f['Turbulence/TurbQty'].create_dataset(str(params.tstep), data=str(turb_qty))
+            # f.close()
 
     #if params.tstep % params.compute_energy == 1:
         #if 'NS' in params.solver:
