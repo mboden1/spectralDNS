@@ -341,7 +341,7 @@ if __name__ == "__main__":
     config.params.T_k = T_k
     config.params.U_k = U_k
 
-    config.params.dt = T_k/32.0 # Set time step to 1/32 the kolmogorov time step
+    config.params.dt = T_k/config.params.N[0] # Set time step to 1/N the kolmogorov time step
 
     print('Re_tau {}, resulting eps {}, nu {}'.format(config.params.Re_lam,config.params.eps_forcing,config.params.nu))
     print('Kolmogorov time scale {}, dt {}'.format(config.params.T_k,config.params.dt))
