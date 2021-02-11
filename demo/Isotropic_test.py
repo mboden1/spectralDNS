@@ -327,8 +327,8 @@ if __name__ == "__main__":
     )
     config.triplyperiodic.add_argument("--N", default=[64, 64, 64], nargs=3,
                                        help="Mesh size. Trumps M.")
-    config.triplyperiodic.add_argument("--compute_energy", type=int, default=100)
-    config.triplyperiodic.add_argument("--compute_spectrum", type=int, default=100)
+    config.triplyperiodic.add_argument("--compute_energy", type=int, default=10)
+    config.triplyperiodic.add_argument("--compute_spectrum", type=int, default=10)
     config.triplyperiodic.add_argument("--plot_step", type=int, default=1000)
     config.triplyperiodic.add_argument("--Kf2", type=int, default=3)
     config.triplyperiodic.add_argument("--kd", type=float, default=50.)
