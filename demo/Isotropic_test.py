@@ -39,6 +39,23 @@ def get_turbulence_params(Re, uEta = 1.0):
 
     return eps, nu, L_k, T_k, U_k
 
+def init_from_file(filename, solver, context):
+    f = h5py.File(filename, driver="mpio", comm=solver.comm)
+    assert "0" in f["U/3D"]
+    U_hat = context.U_hat
+    s = context.T.local_slice(True)
+
+    U_hat[:] = f["U/3D/0"][:, s[0], s[1], s[2]]
+    if solver.rank == 0:
+        U_hat[:, 0, 0, 0] = 0.0
+
+    if 'VV' in config.params.solver:
+        context.W_hat = solver.cross2(context.W_hat, context.K, context.U_hat)
+
+    context.target_energy = energy_fourier(U_hat, context.T)
+
+    f.close()
+
 def initialize(solver, context):
     c = context
     # Create mask with ones where |k| < Kf2 and zeros elsewhere
@@ -134,33 +151,6 @@ def spectrum(solver, context):
     E1 = uiui.mean(axis=(0, 2))
     E2 = uiui.mean(axis=(0, 1))
 
-    ## Rij
-    #for i in range(3):
-    #    c.U[i] = c.FFT.ifftn(c.U_hat[i], c.U[i])
-    #X = c.FFT.get_local_mesh()
-    #R = np.sqrt(X[0]**2 + X[1]**2 + X[2]**2)
-    ## Sample
-    #Rii = np.zeros_like(c.U)
-    #Rii[0] = c.FFT.ifftn(np.conj(c.U_hat[0])*c.U_hat[0], Rii[0])
-    #Rii[1] = c.FFT.ifftn(np.conj(c.U_hat[1])*c.U_hat[1], Rii[1])
-    #Rii[2] = c.FFT.ifftn(np.conj(c.U_hat[2])*c.U_hat[2], Rii[2])
-
-    #R11 = np.sum(Rii[:, :, 0, 0] + Rii[:, 0, :, 0] + Rii[:, 0, 0, :], axis=0)/3
-
-    #Nr = 20
-    #rbins = np.linspace(0, 2*np.pi, Nr)
-    #rz = np.digitize(R, rbins, right=True)
-    #RR = np.zeros(Nr)
-    #for i in range(Nr):
-    #    ii = np.where(rz == i)
-    #    RR[i] = np.sum(Rii[0][ii] + Rii[1][ii] + Rii[2][ii]) / len(ii[0])
-
-    #Rxx = np.zeros((3, config.params.N[0]))
-    #for i in range(config.params.N[0]):
-    #    Rxx[0, i] = (c.U[0] * np.roll(c.U[0], -i, axis=0)).mean()
-    #    Rxx[1, i] = (c.U[0] * np.roll(c.U[0], -i, axis=1)).mean()
-    #    Rxx[2, i] = (c.U[0] * np.roll(c.U[0], -i, axis=2)).mean()
-
     return Ek, bins, E0, E1, E2
 
 k = []
@@ -186,23 +176,19 @@ def update(context):
     energy_old = energy_new
 
     # Constant energy forcing
-    # energy_upper = energy_new - energy_lower
-    # alpha2 = (c.target_energy - energy_upper) /energy_lower
-    # alpha = np.sqrt(alpha2)
+    if params.forcing_mode == 'constant_E':
+        energy_upper = energy_new - energy_lower
+        alpha2 = (c.target_energy - energy_upper) /energy_lower
+        alpha = np.sqrt(alpha2)
+    else: # Constant rate forcint
+        alpha = (1 + params.eps_forcing/energy_lower)*params.dt
 
-    # COnstant rate forcint
-    alpha = (1 + params.eps_forcing/energy_lower)*params.dt
-
-    #du = c.U_hat*c.k2_mask*(alpha)
-    #dus = energy_fourier(du*c.U_hat, c.T)
-
-
-    #c.dU[:] = alpha*c.k2_mask*c.U_hat
     c.U_hat *= (alpha*c.k2_mask + (1-c.k2_mask))
 
     energy_new = energy_fourier(c.U_hat, c.T)
 
-    # assert np.sqrt((energy_new-c.target_energy)**2) < 1e-7, np.sqrt((energy_new-c.target_energy)**2)
+    if params.forcing_mode == 'constant_E':
+        assert np.sqrt((energy_new-c.target_energy)**2) < 1e-7, np.sqrt((energy_new-c.target_energy)**2)
 
     if params.solver == 'VV':
         c.W_hat = solver.cross2(c.W_hat, c.K, c.U_hat)
@@ -240,41 +226,37 @@ def update(context):
 
     if params.tstep % params.compute_energy == 0:
         dx, L = params.dx, params.L
-        #ww = solver.comm.reduce(sum(curl*curl)/np.prod(params.N)/2)
 
+        # Estimate of the dissipation using the norm of the Jacobian
         duidxj = np.zeros(((3, 3)+c.U[0].shape), dtype=c.float) # Jacobian?
         for i in range(3):
             for j in range(3):
                 duidxj[i, j] = c.T.backward(1j*K[j]*c.U_hat[i], duidxj[i, j]) # Derivative in Fourier space
-
         eps_l2J = L2_norm(solver.comm, duidxj)*params.nu # Forebius norm of the jacobian is the entstrophy nu
-        #ww2 = solver.comm.reduce(sum(duidxj*duidxj))
 
+        # Estimate of the dissipation using the derivative of the RHS
         ddU = np.zeros(((3,)+c.U[0].shape), dtype=c.float)
         dU = solver.ComputeRHS(c.dU, c.U_hat, solver, **c)
         for i in range(3):
             ddU[i] = c.T.backward(dU[i], ddU[i])
-
         eps_rhs = solver.comm.allreduce(sum(ddU*c.U))/np.prod(params.N)
 
-        ##if solver.rank == 0:
-            ##print('W ', params.nu*ww, params.nu*eps_l2J, ww3, ww-eps_l2J)
+        # Compute dissipation from rate of change of energy
+        e_current = 0.5*L2_norm(solver.comm, c.U)
+        eps_dEdt = (energy_new-energy_old)/2/params.dt
+
+        # Estimate of the dissipation using the norm of the vorticity
         curl_hat = solver.cross2(curl_hat, K, c.U_hat)
         dissipation = energy_fourier(curl_hat, c.T) # Entstrophy
-        div_u = solver.get_divergence(**c)
-        #du = 1j*(c.K[0]*c.U_hat[0]+c.K[1]*c.U_hat[1]+c.K[2]*c.U_hat[2])
-        div_u = L2_norm(solver.comm, div_u)
-        #div_u2 = energy_fourier(solver.comm, 1j*(K[0]*c.U_hat[0]+K[1]*c.U_hat[1]+K[2]*c.U_hat[2]))
-
-        kk = 0.5*energy_new
         eps_l2vort = dissipation*params.nu
-        Re_lam_eps_dissipation = np.sqrt(20*kk**2/(3*params.nu*eps_l2vort))
-        Re_lam_eps_forcing = np.sqrt(20*kk**2/(3*params.nu*params.eps_forcing))
 
-        kold[0] = energy_new
-        e_old, e_current = 0.5*energy_new, 0.5*L2_norm(solver.comm, c.U)
-        eps_dEdt = (energy_new-energy_old)/2/params.dt
+        # Compute Re number from dissipation and forcing
         eps_forcing = params.eps_forcing
+        kk = 0.5*energy_new
+        Re_lam_eps_dissipation = np.sqrt(20*kk**2/(3*params.nu*eps_l2vort))
+        Re_lam_eps_forcing = np.sqrt(20*kk**2/(3*params.nu*eps_forcing))
+
+
         if solver.rank == 0:
             k.append(energy_new)
             w.append(dissipation)
@@ -295,30 +277,6 @@ def update(context):
             f = h5py.File(context.spectrumname)
             f['Turbulence/TurbQty'].create_dataset(str(params.tstep), data=str(turb_qty))
             f.close()
-
-    #if params.tstep % params.compute_energy == 1:
-        #if 'NS' in params.solver:
-            #kk2 = comm.reduce(sum(U.astype(float64)*U.astype(float64))*dx[0]*dx[1]*dx[2]/L[0]/L[1]/L[2]/2)
-            #if rank == 0:
-                #print 0.5*(kk2-kold[0])/params.dt
-
-def init_from_file(filename, solver, context):
-    f = h5py.File(filename, driver="mpio", comm=solver.comm)
-    assert "0" in f["U/3D"]
-    U_hat = context.U_hat
-    s = context.T.local_slice(True)
-
-    U_hat[:] = f["U/3D/0"][:, s[0], s[1], s[2]]
-    if solver.rank == 0:
-        U_hat[:, 0, 0, 0] = 0.0
-
-    if 'VV' in config.params.solver:
-        context.W_hat = solver.cross2(context.W_hat, context.K, context.U_hat)
-
-    context.target_energy = energy_fourier(U_hat, context.T)
-
-    f.close()
-
 
 if __name__ == "__main__":
     import h5py
@@ -356,6 +314,7 @@ if __name__ == "__main__":
     config.params.U_k = U_k
 
     config.params.dt = T_k/config.params.N[0] # Set time step to 1/N the kolmogorov time step
+    config.params.compute_energy = T_k/config.params.N[0] # Set time step to 1/N the kolmogorov time step
 
     print('Re_tau {}, resulting eps {}, nu {}'.format(config.params.Re_lam,config.params.eps_forcing,config.params.nu))
     print('Kolmogorov time scale {}, dt {}'.format(config.params.T_k,config.params.dt))
@@ -396,7 +355,7 @@ if __name__ == "__main__":
 
     # Advance simulation
     if solver.rank == 0:
-        print(' Tstep Time   Energy       eps_forcing  eps_l2vort   eps_l2J      eps_rhs      eps_dEdt     Re_dissip    Re_forcing')            
+        print(' Tstep Time   Energy       eps_forcing  eps_l2vort   eps_l2J      eps_rhs       eps_dEdt     Re_dissip    Re_forcing')            
 
     solve(solver, context)
 
