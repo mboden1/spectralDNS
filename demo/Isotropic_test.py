@@ -359,7 +359,7 @@ if __name__ == "__main__":
 
         print('Running simulations:')
 
-        print(' Tstep Time   Energy       eps_forcing  eps_l2vort   eps_l2J      eps_rhs       eps_dEdt     Re_dissip    Re_forcing')            
+        print(' Tstep   Time     Energy eps_forcing  eps_l2vort     eps_l2J     eps_rhs     eps_dEdt    Re_dissip   Re_forcing  ')            
 
     solve(solver, context)
 
