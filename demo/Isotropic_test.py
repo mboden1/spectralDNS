@@ -247,7 +247,7 @@ def update(context):
             for j in range(3):
                 duidxj[i, j] = c.T.backward(1j*K[j]*c.U_hat[i], duidxj[i, j]) # Derivative in Fourier space
 
-        ww2 = L2_norm(solver.comm, duidxj)*params.nu # Norm of jacobian times nu
+        eps_l2J = L2_norm(solver.comm, duidxj)*params.nu # Forebius norm of the jacobian is the entstrophy nu
         #ww2 = solver.comm.reduce(sum(duidxj*duidxj))
 
         ddU = np.zeros(((3,)+c.U[0].shape), dtype=c.float)
@@ -255,10 +255,10 @@ def update(context):
         for i in range(3):
             ddU[i] = c.T.backward(dU[i], ddU[i])
 
-        ww3 = solver.comm.allreduce(sum(ddU*c.U))/np.prod(params.N)
+        eps_rhs = solver.comm.allreduce(sum(ddU*c.U))/np.prod(params.N)
 
         ##if solver.rank == 0:
-            ##print('W ', params.nu*ww, params.nu*ww2, ww3, ww-ww2)
+            ##print('W ', params.nu*ww, params.nu*eps_l2J, ww3, ww-eps_l2J)
         curl_hat = solver.cross2(curl_hat, K, c.U_hat)
         dissipation = energy_fourier(curl_hat, c.T) # Entstrophy
         div_u = solver.get_divergence(**c)
@@ -267,28 +267,31 @@ def update(context):
         #div_u2 = energy_fourier(solver.comm, 1j*(K[0]*c.U_hat[0]+K[1]*c.U_hat[1]+K[2]*c.U_hat[2]))
 
         kk = 0.5*energy_new
-        eps = dissipation*params.nu
-        Re_lam_eps_dissipation = np.sqrt(20*kk**2/(3*params.nu*eps))
+        eps_l2vort = dissipation*params.nu
+        Re_lam_eps_dissipation = np.sqrt(20*kk**2/(3*params.nu*eps_l2vort))
         Re_lam_eps_forcing = np.sqrt(20*kk**2/(3*params.nu*params.eps_forcing))
 
         kold[0] = energy_new
         e_old, e_current = 0.5*energy_new, 0.5*L2_norm(solver.comm, c.U)
-        ww4 = (energy_new-energy_old)/2/params.dt
+        eps_dEdt = (energy_new-energy_old)/2/params.dt
         eps_forcing = params.eps_forcing
         if solver.rank == 0:
             k.append(energy_new)
             w.append(dissipation)
-            print('{t:.4f} {e_current:.6e} {eps_forcing:.6e} {eps:.6e} {ww2:.6e} {ww3:.6e} {ww4:.6e} {Re_lam_eps_dissipation:.6e} {Re_lam_eps_forcing:.6e}'.format(
-                    t=params.t, e_current=e_current, eps_forcing=eps_forcing, eps=eps, 
+
+            if params.tstep % (params.compute_energy*10):
+                print('Tstep     Time   Energy       eps_forcing  eps_l2vort   eps_l2J      eps_rhs      eps_dEdt     Re_dissip    Re_forcing')            
+            print('{tstep:.4f} {t:.4f} {e_current:.6e} {eps_forcing:.6e} {eps_l2vort:.6e} {eps_l2J:.6e} {eps_rhs:.6e} {eps_dEdt:.6e} {Re_lam_eps_dissipation:.6e} {Re_lam_eps_forcing:.6e}'.format(
+                    tstep=params.tstep,t=params.t, e_current=e_current, eps_forcing=eps_forcing, eps=eps, 
                     ww2=ww2, ww3=ww3, ww4=ww4, 
                     Re_lam_eps_dissipation=Re_lam_eps_dissipation, Re_lam_eps_forcing=Re_lam_eps_forcing),flush=True)
 
-            turb_qty = {'E':e_current,'eps_forcing':eps_forcing,
-                        'ww2':ww2,'ww3':ww3,'ww4':ww4,
-                        'Re_lam_eps_dissipation':Re_lam_eps_dissipation,
-                        'Re_lam_eps_forcing':Re_lam_eps_forcing
+            turb_qty = {'E':e_current,'eps_forcing':eps_forcing,'eps_l2vort':eps_l2vort,
+                        'eps_l2J':eps_l2J,'eps_rhs':eps_rhs,'eps_dEdt':eps_dEdt,
+                        'Re_dissip':Re_lam_eps_dissipation,
+                        'Re_forcing':Re_lam_eps_forcing
                         }
-                        
+
             f = h5py.File(context.spectrumname)
             f['Turbulence/TurbQty'].create_dataset(str(params.tstep), data=str(turb_qty))
             f.close()
