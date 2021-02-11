@@ -262,7 +262,7 @@ def update(context):
             w.append(dissipation)
 
             if params.tstep % (params.compute_energy*10) == 0:
-                print(' Tstep Time   Energy    eps_forcing eps_l2vort  eps_l2J     eps_rhs     eps_dEdt    Re_dissip   Re_forcing  ')            
+                print(' Tstep   Time     Energy eps_forcing  eps_l2vort     eps_l2J     eps_rhs     eps_dEdt    Re_dissip   Re_forcing  ')            
             print('{tstep:6d} {t:.4f} {e_current:12.4f} {eps_forcing:12.4f} {eps_l2vort:12.4f} {eps_l2J:12.4f} {eps_rhs:12.4f} {eps_dEdt:12.4f} {Re_lam_eps_dissipation:12.4f} {Re_lam_eps_forcing:12.4f}'.format(
                     tstep=params.tstep,t=params.t, e_current=e_current, eps_forcing=eps_forcing, eps_l2vort=eps_l2vort, 
                     eps_l2J=eps_l2J, eps_rhs=eps_rhs, eps_dEdt=eps_dEdt, 
