@@ -282,6 +282,10 @@ def update(context):
             w.append(dissipation)
             print('%2.4f %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e'.format(params.t, e0, e1, eps_forcing, eps, ww2, ww3, ww4, Re_lam, Re_lam2, Re_lam3),flush=True)
 
+        turb_qty = {'E':e1,'eps_forcing':eps_forcing,'ww2':ww2,'ww3':ww3,'ww4':ww4,'Re_lam_eps_dissipation':Re_lam,'Re_lam_eps_forcing':Re_lam3}
+        f = h5py.File(context.spectrumname, driver='mpio', comm=solver.comm)
+        f['Turbulence/TurbQty'].create_dataset(str(params.tstep), data=turb_qty)
+        f.close()
     #if params.tstep % params.compute_energy == 1:
         #if 'NS' in params.solver:
             #kk2 = comm.reduce(sum(U.astype(float64)*U.astype(float64))*dx[0]*dx[1]*dx[2]/L[0]/L[1]/L[2]/2)
@@ -374,6 +378,7 @@ if __name__ == "__main__":
     f = h5py.File(context.spectrumname, mode='w', driver='mpio', comm=solver.comm)
     f.create_group("Turbulence")
     f["Turbulence"].create_group("Ek")
+    f["Turbulence"].create_group("TurbQty")
     bins = np.array(bins)
     f["Turbulence"].create_dataset("bins", data=bins)
     f.close()
