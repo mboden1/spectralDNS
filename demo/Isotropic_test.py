@@ -358,8 +358,7 @@ if __name__ == "__main__":
         print('T_I/T_k {} = Re^1/2 {:.5f} \n'.format(T_I/config.params.T_k,config.params.Re_lam**(1./2)))
 
         print('Running simulations:')
-
-        print(' Tstep   Time       Energy  eps_forcing   eps_l2vort      eps_l2J      eps_rhs     eps_dEdt    Re_dissip   Re_forcing',flush=True)            
+        print(' Tstep    Time  Energy  eps_forcing   eps_l2vort      eps_l2J      eps_rhs     eps_dEdt    Re_dissip   Re_forcing')            
 
     solve(solver, context)
 
