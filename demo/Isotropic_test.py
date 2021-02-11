@@ -320,14 +320,14 @@ if __name__ == "__main__":
          'dealias': '3/2-rule',
         }, "triplyperiodic"
     )
-    config.triplyperiodic.add_argument("--N", default=[256, 256, 256], nargs=3,
+    config.triplyperiodic.add_argument("--N", default=[64, 64, 64], nargs=3,
                                        help="Mesh size. Trumps M.")
     config.triplyperiodic.add_argument("--compute_energy", type=int, default=100)
     config.triplyperiodic.add_argument("--compute_spectrum", type=int, default=100)
     config.triplyperiodic.add_argument("--plot_step", type=int, default=1000)
     config.triplyperiodic.add_argument("--Kf2", type=int, default=3)
     config.triplyperiodic.add_argument("--kd", type=float, default=50.)
-    config.triplyperiodic.add_argument("--Re_lam", type=float, default=84.)
+    config.triplyperiodic.add_argument("--Re_lam", type=float, default=100.)
 
     # Define solver
     solver = get_solver(update=update, mesh="triplyperiodic")
