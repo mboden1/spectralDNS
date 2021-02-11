@@ -395,7 +395,7 @@ if __name__ == "__main__":
     f.close()
 
     # Advance simulation
-   if solver.rank == 0:
+    if solver.rank == 0:
         print(' Tstep Time   Energy       eps_forcing  eps_l2vort   eps_l2J      eps_rhs      eps_dEdt     Re_dissip    Re_forcing')            
 
     solve(solver, context)
