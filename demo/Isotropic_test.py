@@ -280,12 +280,7 @@ def update(context):
         if solver.rank == 0:
             k.append(energy_new)
             w.append(dissipation)
-            print('{%2.4f} {%2.6e} {%2.6e} %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e'.format(params.t, e0, e1, eps_forcing, eps, ww2, ww3, ww4, Re_lam, Re_lam2, Re_lam3),flush=True)
-
-            # turb_qty = {'E':e1,'eps_forcing':eps_forcing,'ww2':ww2,'ww3':ww3,'ww4':ww4,'Re_lam_eps_dissipation':Re_lam,'Re_lam_eps_forcing':Re_lam3}
-            # f = h5py.File(context.spectrumname)
-            # f['Turbulence/TurbQty'].create_dataset(str(params.tstep), data=str(turb_qty))
-            # f.close()
+            print('%2.4f %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e %2.6e'.format(params.t, e0, e1, eps_forcing, eps, ww2, ww3, ww4, Re_lam, Re_lam2, Re_lam3),flush=True)
 
     #if params.tstep % params.compute_energy == 1:
         #if 'NS' in params.solver:
@@ -327,8 +322,8 @@ if __name__ == "__main__":
     )
     config.triplyperiodic.add_argument("--N", default=[64, 64, 64], nargs=3,
                                        help="Mesh size. Trumps M.")
-    config.triplyperiodic.add_argument("--compute_energy", type=int, default=10)
-    config.triplyperiodic.add_argument("--compute_spectrum", type=int, default=10)
+    config.triplyperiodic.add_argument("--compute_energy", type=int, default=100)
+    config.triplyperiodic.add_argument("--compute_spectrum", type=int, default=100)
     config.triplyperiodic.add_argument("--plot_step", type=int, default=1000)
     config.triplyperiodic.add_argument("--Kf2", type=int, default=3)
     config.triplyperiodic.add_argument("--kd", type=float, default=50.)
@@ -379,15 +374,14 @@ if __name__ == "__main__":
     f = h5py.File(context.spectrumname, mode='w', driver='mpio', comm=solver.comm)
     f.create_group("Turbulence")
     f["Turbulence"].create_group("Ek")
-    f["Turbulence"].create_group("TurbQty")
     bins = np.array(bins)
     f["Turbulence"].create_dataset("bins", data=bins)
     f.close()
 
-    # Advance simulation
-    solve(solver, context)
+    # # Advance simulation
+    # solve(solver, context)
 
-    # Save simulation
-    from mpi4py_fft import generate_xdmf
-    if solver.rank == 0:
-        generate_xdmf(context.hdf5file.filename+"_w.h5")
+    # # Save simulation
+    # from mpi4py_fft import generate_xdmf
+    # if solver.rank == 0:
+    #     generate_xdmf(context.hdf5file.filename+"_w.h5")
