@@ -314,15 +314,8 @@ if __name__ == "__main__":
     config.params.U_k = U_k
 
     config.params.dt = T_k/config.params.N[0] # Set time step to 1/N the kolmogorov time step
-    config.params.compute_energy = T_k/config.params.N[0] # Set time step to 1/N the kolmogorov time step
-
-    print('Re_tau {}, resulting eps {}, nu {}'.format(config.params.Re_lam,config.params.eps_forcing,config.params.nu))
-    print('Kolmogorov time scale {}, dt {}'.format(config.params.T_k,config.params.dt))
-    print('Kolmogorov length scale {}'.format(config.params.L_k))
-
-    # config.params.nu = (1./config.params.kd**(4./3.))
-
-
+    config.params.compute_energy = config.params.N[0]   # Compute energy every komlmogorv time scale
+    config.params.compute_spectrum = config.params.N[0] # Compute spectrum every komlmogorv time scale
 
     # Initialize turbulence
     initialize(solver, context)
@@ -330,17 +323,11 @@ if __name__ == "__main__":
 
     # Get initial power spectrum
     Ek, bins, E0, E1, E2 = spectrum(solver, context)
-
     E = context.target_energy
-    print(E,np.sum(Ek))
 
     L_I = 3*np.pi/(4*E)*np.trapz(Ek/bins,x=bins)
     T_I = L_I/np.sqrt(2*E/3)
-    print('Integral length scale {} time scale {}'.format(L_I,T_I),flush=True)
     config.params.T = 30*T_I
-    print('Total simulation time {}, total time steps {}'.format(config.params.T,config.params.T/config.params.dt),flush=True)
-    print('L/eta {} Re^3/4 {}'.format(L_I/config.params.L_k,config.params.Re_lam**(3./4)))
-    print('T_I/T_k {} Re^1/2 {}'.format(T_I/config.params.T_k,config.params.Re_lam**(1./2)))
 
     # Save initial power spectrum
     context.spectrumname = context.hdf5file.filename+".h5"
@@ -355,6 +342,22 @@ if __name__ == "__main__":
 
     # Advance simulation
     if solver.rank == 0:
+
+        print('Running Homogenou Isotropic Turbulence N={} \n'.format(config.params.N[0]))
+        print('Turbulence quantities:')
+        print('Re_tau {}, resulting eps {:.5f}, nu {:.5f}'.format(config.params.Re_lam,config.params.eps_forcing,config.params.nu))
+        print('Kolmogorov time scale {:.5f}, dt = L_k/N {:.5f}'.format(config.params.T_k,config.params.dt))
+        print('Kolmogorov length scale {:.5f} \n'.format(config.params.L_k))
+        
+        print('From initialization: E={:.5f}'.format(E))
+        print('Integral length scale {:.5f} time scale {:.5f}'.format(L_I,T_I),flush=True)
+        print('Total simulation time = 30*L_I = {:.5f}, total time steps {}'.format(config.params.T,config.params.T/config.params.dt),flush=True)
+        print('Scalings:')
+        print('L/eta {:.5f} Re^3/4 {:.5f}'.format(L_I/config.params.L_k,config.params.Re_lam**(3./4)))
+        print('T_I/T_k {} Re^1/2 {:.5f} \n'.format(T_I/config.params.T_k,config.params.Re_lam**(1./2)))
+
+        print('Running simulations:')
+
         print(' Tstep Time   Energy       eps_forcing  eps_l2vort   eps_l2J      eps_rhs       eps_dEdt     Re_dissip    Re_forcing')            
 
     solve(solver, context)
