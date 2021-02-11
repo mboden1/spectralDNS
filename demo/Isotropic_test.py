@@ -160,9 +160,11 @@ im1 = None
 energy_new = None
 def update(context):
     global k, w, im1, energy_new
+    
     c = context
     params = config.params
     solver = config.solver
+    
     curl_hat = Function(c.VT, buffer=c.work[(c.U_hat, 2, True)])
 
     if solver.rank == 0:
@@ -262,9 +264,9 @@ def update(context):
             w.append(dissipation)
 
             if params.tstep % (params.compute_energy*10) == 0:
-                print(' Tstep    Time  Energy  eps_forcing   eps_l2vort      eps_l2J      eps_rhs         dEdt    Re_dissip   Re_forcing')            
-            print('{tstep:6d} {t:7.4f} {e_current:7.4f} {eps_forcing:12.4f} {eps_l2vort:12.4f} {eps_l2J:12.4f} {eps_rhs:12.4f} {eps_dEdt:12.4f} {Re_lam_eps_dissipation:12.4f} {Re_lam_eps_forcing:12.4f}'.format(
-                    tstep=params.tstep,t=params.t, e_current=e_current, eps_forcing=eps_forcing, eps_l2vort=eps_l2vort, 
+                print(' Tstep    Time    E(t)   E(t-1)  eps_forcing   eps_l2vort      eps_l2J      eps_rhs         dEdt    Re_dissip   Re_forcing',flush=True)            
+            print('{tstep:6d} {t:7.4f} {e_current:7.4f} {e_old:7.4f} {eps_forcing:12.4f} {eps_l2vort:12.4f} {eps_l2J:12.4f} {eps_rhs:12.4f} {eps_dEdt:12.4f} {Re_lam_eps_dissipation:12.4f} {Re_lam_eps_forcing:12.4f}'.format(
+                    tstep=params.tstep,t=params.t, e_current=e_current,e_old=energy_old eps_forcing=eps_forcing, eps_l2vort=eps_l2vort, 
                     eps_l2J=eps_l2J, eps_rhs=eps_rhs, eps_dEdt=eps_dEdt, 
                     Re_lam_eps_dissipation=Re_lam_eps_dissipation, Re_lam_eps_forcing=Re_lam_eps_forcing),flush=True)
 
@@ -360,7 +362,7 @@ if __name__ == "__main__":
         print('     T_I/T_k {} = Re^1/2 {:.5f} \n'.format(T_I/config.params.T_k,config.params.Re_lam**(1./2)))
 
         print(' Running simulations:')
-        print(' Tstep    Time  Energy  eps_forcing   eps_l2vort      eps_l2J      eps_rhs         dEdt    Re_dissip   Re_forcing',flush=True)            
+        print(' Tstep    Time    E(t)   E(t-1)  eps_forcing   eps_l2vort      eps_l2J      eps_rhs         dEdt    Re_dissip   Re_forcing',flush=True)            
 
     solve(solver, context)
 
