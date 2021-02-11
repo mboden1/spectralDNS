@@ -363,7 +363,8 @@ if __name__ == "__main__":
     T_I = L_I/np.sqrt(2*E/3)
     print('Integral length scale {} time scale {}'.format(L_I,T_I),flush=True)
     config.params.T = 10*T_I
-    print('Total simulation time {}, total time steps {}'.format(config.params.T,config.params.T/config.params.dt),flus=True)
+    print('Total simulation time {}, total time steps {}'.format(config.params.T,config.params.T/config.params.dt),flush=True)
+    
     # Save initial power spectrum
     context.spectrumname = context.hdf5file.filename+".h5"
     f = h5py.File(context.spectrumname, mode='w', driver='mpio', comm=solver.comm)
