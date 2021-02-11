@@ -383,10 +383,10 @@ if __name__ == "__main__":
     f["Turbulence"].create_dataset("bins", data=bins)
     f.close()
 
-    # # Advance simulation
-    # solve(solver, context)
+    # Advance simulation
+    solve(solver, context)
 
-    # # Save simulation
-    # from mpi4py_fft import generate_xdmf
-    # if solver.rank == 0:
-    #     generate_xdmf(context.hdf5file.filename+"_w.h5")
+    # Save simulation
+    from mpi4py_fft import generate_xdmf
+    if solver.rank == 0:
+        generate_xdmf(context.hdf5file.filename+"_w.h5")
