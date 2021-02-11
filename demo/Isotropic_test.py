@@ -319,7 +319,7 @@ if __name__ == "__main__":
          'dealias': '3/2-rule',
         }, "triplyperiodic"
     )
-    config.triplyperiodic.add_argument("--N", default=[64, 64, 64], nargs=3,
+    config.triplyperiodic.add_argument("--N", default=[256, 256, 256], nargs=3,
                                        help="Mesh size. Trumps M.")
     config.triplyperiodic.add_argument("--compute_energy", type=int, default=100)
     config.triplyperiodic.add_argument("--compute_spectrum", type=int, default=100)
@@ -363,7 +363,7 @@ if __name__ == "__main__":
     L_I = 3*np.pi/(4*E)*np.trapz(Ek/bins,x=bins)
     T_I = L_I/np.sqrt(2*E/3)
     print('Integral length scale {} time scale {}'.format(L_I,T_I),flush=True)
-    config.params.T = 10*T_I
+    config.params.T = 30*T_I
     print('Total simulation time {}, total time steps {}'.format(config.params.T,config.params.T/config.params.dt),flush=True)
     print('L/eta {} Re^3/4 {}'.format(L_I/config.params.L_k,config.params.Re_lam**(3./4)))
     print('T_I/T_k {} Re^1/2 {}'.format(T_I/config.params.T_k,config.params.Re_lam**(1./2)))
