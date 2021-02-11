@@ -262,8 +262,8 @@ def update(context):
             w.append(dissipation)
 
             if params.tstep % (params.compute_energy*10) == 0:
-                print(' Tstep Time   Energy       eps_forcing  eps_l2vort   eps_l2J      eps_rhs      eps_dEdt     Re_dissip    Re_forcing')            
-            print('{tstep:6d} {t:.4f} {e_current:.6e} {eps_forcing:.6e} {eps_l2vort:.6e} {eps_l2J:.6e} {eps_rhs:.6e} {eps_dEdt:.6e} {Re_lam_eps_dissipation:.6e} {Re_lam_eps_forcing:.6e}'.format(
+                print(' Tstep Time   Energy    eps_forcing eps_l2vort  eps_l2J     eps_rhs     eps_dEdt    Re_dissip   Re_forcing  ')            
+            print('{tstep:6d} {t:.4f} {e_current:12.4f} {eps_forcing:12.4f} {eps_l2vort:12.4f} {eps_l2J:12.4f} {eps_rhs:12.4f} {eps_dEdt:12.4f} {Re_lam_eps_dissipation:12.4f} {Re_lam_eps_forcing:12.4f}'.format(
                     tstep=params.tstep,t=params.t, e_current=e_current, eps_forcing=eps_forcing, eps_l2vort=eps_l2vort, 
                     eps_l2J=eps_l2J, eps_rhs=eps_rhs, eps_dEdt=eps_dEdt, 
                     Re_lam_eps_dissipation=Re_lam_eps_dissipation, Re_lam_eps_forcing=Re_lam_eps_forcing),flush=True)
@@ -328,7 +328,7 @@ if __name__ == "__main__":
 
     L_I = 3*np.pi/(4*E)*np.trapz(Ek/bins,x=bins)
     T_I = L_I/np.sqrt(2*E/3)
-    config.params.T = 30*T_I
+    config.params.T = int(30*T_I)
 
     # Save initial power spectrum
     context.spectrumname = context.hdf5file.filename+".h5"
@@ -354,8 +354,8 @@ if __name__ == "__main__":
         print('Integral length scale {:.5f} time scale {:.5f}'.format(L_I,T_I),flush=True)
         print('Total simulation time = 30*L_I = {:.5f}, total time steps {}'.format(config.params.T,config.params.T/config.params.dt),flush=True)
         print('Scalings:')
-        print('L/eta {:.5f} Re^3/4 {:.5f}'.format(L_I/config.params.L_k,config.params.Re_lam**(3./4)))
-        print('T_I/T_k {} Re^1/2 {:.5f} \n'.format(T_I/config.params.T_k,config.params.Re_lam**(1./2)))
+        print('L/eta {:.5f} = Re^3/4 {:.5f}'.format(L_I/config.params.L_k,config.params.Re_lam**(3./4)))
+        print('T_I/T_k {} = Re^1/2 {:.5f} \n'.format(T_I/config.params.T_k,config.params.Re_lam**(1./2)))
 
         print('Running simulations:')
 
