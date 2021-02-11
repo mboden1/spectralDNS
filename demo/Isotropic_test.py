@@ -281,7 +281,7 @@ def update(context):
 
             if params.tstep % (params.compute_energy*10) == 0:
                 print('Tstep     Time   Energy       eps_forcing  eps_l2vort   eps_l2J      eps_rhs      eps_dEdt     Re_dissip    Re_forcing')            
-            print('{tstep:.4f} {t:.4f} {e_current:.6e} {eps_forcing:.6e} {eps_l2vort:.6e} {eps_l2J:.6e} {eps_rhs:.6e} {eps_dEdt:.6e} {Re_lam_eps_dissipation:.6e} {Re_lam_eps_forcing:.6e}'.format(
+            print('{tstep:6d} {t:.4f} {e_current:.6e} {eps_forcing:.6e} {eps_l2vort:.6e} {eps_l2J:.6e} {eps_rhs:.6e} {eps_dEdt:.6e} {Re_lam_eps_dissipation:.6e} {Re_lam_eps_forcing:.6e}'.format(
                     tstep=params.tstep,t=params.t, e_current=e_current, eps_forcing=eps_forcing, eps_l2vort=eps_l2vort, 
                     eps_l2J=eps_l2J, eps_rhs=eps_rhs, eps_dEdt=eps_dEdt, 
                     Re_lam_eps_dissipation=Re_lam_eps_dissipation, Re_lam_eps_forcing=Re_lam_eps_forcing),flush=True)
