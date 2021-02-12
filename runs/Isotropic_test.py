@@ -26,18 +26,32 @@ except ImportError:
     warnings.warn("matplotlib not installed")
     plt = None
 
-def get_turbulence_params(Re, uEta = 1.0):
-    C = 3.0 # np.sqrt(196.0/20.0) #2.87657077
-    # K = 2/3.0 * C * np.sqrt(15)
-    eps = (Re/np.sqrt(60))**(3./2.)
-    # eps = np.power(uEta*uEta * Re / K, 3.0/2.0)
-    nu = np.power(uEta, 4) / eps
+def get_turbulence_params_Novati(Re, kf, uEta = 1.0):
+
+    K = Re*uEta*uEta/(np.sqrt(20/3.)) # Re_lambda definition
+    eps = (K/kf**(3/2.))**(3/2.)      # From Pope 
+    nu = np.power(uEta, 4) / eps      # From Kolmogorov velocity scale
 
     L_k = (nu**3/eps)**0.25
     T_k = np.sqrt(nu/eps)
     U_k = (nu*eps)**0.25
 
-    return eps, nu, L_k, T_k, U_k
+    return eps, nu, K, L_k, T_k, U_k
+
+def get_turbulence_params_Lamorgese(Re, kf, eps=1):
+    '''
+    Set the forcing to 1, i.e eps = 1 and specify the Re
+
+    '''
+
+    K = (kf)**(3./2.)*eps**(2./3.) # From Pope
+    nu = 20./3*K*K/(Re*Re)/eps     # From Re_lambda definition
+
+    L_k = (nu**3/eps)**0.25
+    T_k = np.sqrt(nu/eps)
+    U_k = (nu*eps)**0.25
+
+    return eps, nu, K, L_k, T_k, U_k
 
 def init_from_file(filename, solver, context):
     f = h5py.File(filename, driver="mpio", comm=solver.comm)
@@ -93,11 +107,9 @@ def initialize(solver, context):
     if solver.rank == 0:
         c.U_hat[:, 0, 0, 0] = 0.0
 
-    # Scale to get correct kinetic energy. Target from [2]
+    # Scale to get correct kinetic energy. Target from get_turbulence_params fct
     energy = 0.5*energy_fourier(c.U_hat, c.T)
-    # target = config.params.Re_lam*(config.params.nu*config.params.kd)**2/np.sqrt(20./3.)
-    target = config.params.eps_forcing**(2/3.0)*3.0
-    c.U_hat *= np.sqrt(target/energy)
+    c.U_hat *= np.sqrt(context.params.target/energy)
 
     if 'VV' in config.params.solver:
         c.W_hat = solver.cross2(c.W_hat, c.K, c.U_hat)
@@ -106,7 +118,7 @@ def initialize(solver, context):
     config.params.tstep = 0
     c.target_energy = energy_fourier(c.U_hat, c.T)
 
-    print(target,c.target_energy)
+    print(target,0.5*c.target_energy)
 
 def L2_norm(comm, u):
     r"""Compute the L2-norm of real array a
@@ -164,7 +176,6 @@ def update(context):
     c = context
     params = config.params
     solver = config.solver
-    
     curl_hat = Function(c.VT, buffer=c.work[(c.U_hat, 2, True)])
 
     if solver.rank == 0:
@@ -173,6 +184,8 @@ def update(context):
     if params.solver == 'VV':
         c.U_hat = solver.cross2(c.U_hat, c.K_over_K2, c.W_hat)
 
+    # ------------------------------- Forcing -------------------------------- #
+    
     energy_new = energy_fourier(c.U_hat, c.T) # Sum of squares, no 1/2 factor
     energy_lower = energy_fourier(c.U_hat*c.k2_mask, c.T)
 
@@ -192,34 +205,10 @@ def update(context):
 
     if params.forcing_mode == 'constant_E':
         assert np.sqrt((energy_new-c.target_energy)**2) < 1e-7, np.sqrt((energy_new-c.target_energy)**2)
-
+    
     if params.solver == 'VV':
         c.W_hat = solver.cross2(c.W_hat, c.K, c.U_hat)
-
-    if (params.tstep % params.compute_energy == 0 or
-            params.tstep % params.plot_step == 0 and params.plot_step > 0):
-        solver.get_velocity(**c)
-        solver.get_curl(**c)
-        if 'NS' in params.solver:
-            solver.get_pressure(**c)
-
-    K = c.K # local wave numbers
-    if plt is not None:
-        if params.tstep % params.plot_step == 0 and solver.rank == 0 and params.plot_step > 0:
-            #div_u = solver.get_divergence(**c)
-
-            if not plt.fignum_exists(1):
-                plt.figure(1)
-                #im1 = plt.contourf(c.X[1][:,:,0], c.X[0][:,:,0], div_u[:,:,10], 100)
-                im1 = plt.contourf(c.X[1][..., 0], c.X[0][..., 0], c.U[0, ..., 10], 100)
-                plt.colorbar(im1)
-                plt.draw()
-            else:
-                im1.ax.clear()
-                #im1.ax.contourf(c.X[1][:,:,0], c.X[0][:,:,0], div_u[:,:,10], 100)
-                im1.ax.contourf(c.X[1][..., 0], c.X[0][..., 0], c.U[0, ..., 10], 100)
-                im1.autoscale()
-            plt.pause(1e-6)
+    # ------------------------------------------------------------------------ #
 
     if params.tstep % params.compute_spectrum == 0:
         Ek, _, _, _, _ = spectrum(solver, context)
@@ -228,13 +217,18 @@ def update(context):
         f.close()
 
     if params.tstep % params.compute_energy == 0:
+        solver.get_velocity(**c)
+        solver.get_curl(**c)
+        if 'NS' in params.solver:
+            solver.get_pressure(**c)
+
         dx, L = params.dx, params.L
 
         # Estimate of the dissipation using the norm of the Jacobian
         duidxj = np.zeros(((3, 3)+c.U[0].shape), dtype=c.float) # Jacobian?
         for i in range(3):
             for j in range(3):
-                duidxj[i, j] = c.T.backward(1j*K[j]*c.U_hat[i], duidxj[i, j]) # Derivative in Fourier space
+                duidxj[i, j] = c.T.backward(1j*c.K[j]*c.U_hat[i], duidxj[i, j]) # Derivative in Fourier space
         eps_l2J = L2_norm(solver.comm, duidxj)*params.nu # Forebius norm of the jacobian is the entstrophy nu
 
         # Estimate of the dissipation using the derivative of the RHS
@@ -249,7 +243,7 @@ def update(context):
         eps_dEdt = (energy_new-energy_old)/2/params.dt
 
         # Estimate of the dissipation using the norm of the vorticity
-        curl_hat = solver.cross2(curl_hat, K, c.U_hat)
+        curl_hat = solver.cross2(curl_hat, c.K, c.U_hat)
         dissipation = energy_fourier(curl_hat, c.T) # Entstrophy
         eps_l2vort = dissipation*params.nu
 
@@ -305,15 +299,24 @@ if __name__ == "__main__":
     
     config.triplyperiodic.add_argument("--Re_lam", type=float, default=100.)
     config.triplyperiodic.add_argument("--forcing_mode", type=str, default="constant_eps")
+    config.triplyperiodic.add_argument("--init_mode", type=str, default="Lamorgese") # Lamorgese or Novati
 
     # Define solver
     solver = get_solver(update=update, mesh="triplyperiodic")
     context = solver.get_context()
 
     # Turbulence parameters
-    eps, nu, L_k, T_k, U_k = get_turbulence_params(config.params.Re_lam)
+    if config.params.init_mode == 'Lamorgese':
+        eps, nu, K, L_k, T_k, U_k = get_turbulence_params_Lamorgese(config.params.Re_lam,config.params.Kf2)
+        print('Init using Lamorgese, setting fixed eps to 1, getting nu from Re ')
+    elif config.params.init_mode == 'Novati':
+        eps, nu, K, L_k, T_k, U_k = get_turbulence_params_Novati(config.params.Re_lam,config.params.Kf2)
+        print('Init using Lamorgese, setting fixed uEta to 1, getting nu and eps from Re ')
+
+    config.params.target = K # Initial energy (and target engergy for constant_E forcing)
     config.params.nu = nu
     config.params.eps_forcing = eps
+
     config.params.L_k = L_k
     config.params.T_k = T_k
     config.params.U_k = U_k
@@ -355,7 +358,7 @@ if __name__ == "__main__":
         print('     Kolmogorov time scale {:.5f}, dt = L_k/N {:.5f}'.format(config.params.T_k,config.params.dt))
         print('     Kolmogorov length scale {:.5f} \n'.format(config.params.L_k))
         
-        print(' From initialization: E={:.5f}'.format(E))
+        print(' From initialization: E={:.5f}'.format(0.5*E))
         print('     Integral length scale {:.5f} time scale {:.5f}'.format(L_I,T_I),flush=True)
         print('     Total simulation time = 30*L_I = {:.5f}, total time steps {}'.format(config.params.T,np.floor(config.params.T/config.params.dt)),flush=True)
         print(' Scalings:')
