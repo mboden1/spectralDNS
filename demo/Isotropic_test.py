@@ -182,7 +182,7 @@ def update(context):
         alpha2 = (c.target_energy - energy_upper) /energy_lower
         alpha = np.sqrt(alpha2)
     else: # Constant rate forcint
-        alpha = (1 + params.eps_forcing/energy_lower)*params.dt
+        alpha = (1 + params.eps_forcing/energy_lower*params.dt)
 
     energy_old = energy_new
 
