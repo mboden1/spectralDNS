@@ -175,7 +175,6 @@ def update(context):
 
     energy_new = energy_fourier(c.U_hat, c.T) # Sum of squares, no 1/2 factor
     energy_lower = energy_fourier(c.U_hat*c.k2_mask, c.T)
-    energy_old = energy_new
 
     # Constant energy forcing
     if params.forcing_mode == 'constant_E':
@@ -184,6 +183,8 @@ def update(context):
         alpha = np.sqrt(alpha2)
     else: # Constant rate forcint
         alpha = (1 + params.eps_forcing/energy_lower)*params.dt
+
+    energy_old = energy_new
 
     c.U_hat *= (alpha*c.k2_mask + (1-c.k2_mask))
 
@@ -266,7 +267,7 @@ def update(context):
             if params.tstep % (params.compute_energy*10) == 0:
                 print(' Tstep    Time    E(t)   E(t-1)  eps_forcing   eps_l2vort      eps_l2J      eps_rhs         dEdt    Re_dissip   Re_forcing',flush=True)            
             print('{tstep:6d} {t:7.4f} {e_current:7.4f} {e_old:7.4f} {eps_forcing:12.4f} {eps_l2vort:12.4f} {eps_l2J:12.4f} {eps_rhs:12.4f} {eps_dEdt:12.4f} {Re_lam_eps_dissipation:12.4f} {Re_lam_eps_forcing:12.4f}'.format(
-                    tstep=params.tstep,t=params.t, e_current=e_current, e_old=energy_old, eps_forcing=eps_forcing, eps_l2vort=eps_l2vort, 
+                    tstep=params.tstep,t=params.t, e_current=e_current, e_old=0.5*energy_old, eps_forcing=eps_forcing, eps_l2vort=eps_l2vort, 
                     eps_l2J=eps_l2J, eps_rhs=eps_rhs, eps_dEdt=eps_dEdt, 
                     Re_lam_eps_dissipation=Re_lam_eps_dissipation, Re_lam_eps_forcing=Re_lam_eps_forcing),flush=True)
 
