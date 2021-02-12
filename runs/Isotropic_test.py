@@ -247,6 +247,8 @@ def update(context):
         dissipation = energy_fourier(curl_hat, c.T) # Entstrophy
         eps_l2vort = dissipation*params.nu
 
+        print(e_current,0.5*energy_new)
+
         # Compute Re number from dissipation and forcing
         eps_forcing = params.eps_forcing
         kk = 0.5*energy_new
