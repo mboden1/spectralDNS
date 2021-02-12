@@ -265,7 +265,7 @@ def update(context):
             w.append(dissipation)
 
             if params.tstep % (params.compute_energy*10) == 0:
-                print(' Tstep    Time    E(t)   E(t-1)  eps_forcing   eps_l2vort      eps_l2J      eps_rhs         dEdt    Re_dissip   Re_forcing',flush=True)            
+                print(' Tstep    Time    E(t)  E(t-1)  eps_forcing   eps_l2vort      eps_l2J      eps_rhs         dEdt    Re_dissip   Re_forcing',flush=True)            
             print('{tstep:6d} {t:7.4f} {e_current:7.4f} {e_old:7.4f} {eps_forcing:12.4f} {eps_l2vort:12.4f} {eps_l2J:12.4f} {eps_rhs:12.4f} {eps_dEdt:12.4f} {Re_lam_eps_dissipation:12.4f} {Re_lam_eps_forcing:12.4f}'.format(
                     tstep=params.tstep,t=params.t, e_current=e_current, e_old=0.5*energy_old, eps_forcing=eps_forcing, eps_l2vort=eps_l2vort, 
                     eps_l2J=eps_l2J, eps_rhs=eps_rhs, eps_dEdt=eps_dEdt, 
@@ -319,8 +319,8 @@ if __name__ == "__main__":
     config.params.U_k = U_k
 
     config.params.dt = T_k/config.params.N[0] # Set time step to 1/N the kolmogorov time step
-    config.params.compute_energy = 1   # Compute energy every komlmogorv time scale
-    config.params.compute_spectrum = 1 # Compute spectrum every komlmogorv time scale
+    config.params.compute_energy = 32   # Compute energy every komlmogorv time scale
+    config.params.compute_spectrum = 32 # Compute spectrum every komlmogorv time scale
 
     # Initialize turbulence
     initialize(solver, context)
@@ -363,7 +363,7 @@ if __name__ == "__main__":
         print('     T_I/T_k {} = Re^1/2 {:.5f} \n'.format(T_I/config.params.T_k,config.params.Re_lam**(1./2)))
 
         print(' Running simulations:')
-        print(' Tstep    Time    E(t)   E(t-1)  eps_forcing   eps_l2vort      eps_l2J      eps_rhs         dEdt    Re_dissip   Re_forcing',flush=True)            
+        print(' Tstep    Time    E(t)  E(t-1)  eps_forcing   eps_l2vort      eps_l2J      eps_rhs         dEdt    Re_dissip   Re_forcing',flush=True)            
 
     solve(solver, context)
 
