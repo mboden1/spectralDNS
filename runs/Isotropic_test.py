@@ -109,7 +109,7 @@ def initialize(solver, context):
 
     # Scale to get correct kinetic energy. Target from get_turbulence_params fct
     energy = 0.5*energy_fourier(c.U_hat, c.T)
-    c.U_hat *= np.sqrt(context.params.target/energy)
+    c.U_hat *= np.sqrt(config.params.target/energy)
 
     if 'VV' in config.params.solver:
         c.W_hat = solver.cross2(c.W_hat, c.K, c.U_hat)
@@ -294,9 +294,9 @@ if __name__ == "__main__":
     config.triplyperiodic.add_argument("--compute_energy", type=int, default=10)
     config.triplyperiodic.add_argument("--compute_spectrum", type=int, default=10)
     config.triplyperiodic.add_argument("--plot_step", type=int, default=1000)
-    config.triplyperiodic.add_argument("--Kf2", type=int, default=3)
-    config.triplyperiodic.add_argument("--kd", type=float, default=50.)
     
+    # PARAMS
+    config.triplyperiodic.add_argument("--Kf2", type=int, default=3)
     config.triplyperiodic.add_argument("--Re_lam", type=float, default=100.)
     config.triplyperiodic.add_argument("--forcing_mode", type=str, default="constant_eps")
     config.triplyperiodic.add_argument("--init_mode", type=str, default="Lamorgese") # Lamorgese or Novati
