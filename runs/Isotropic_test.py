@@ -236,10 +236,10 @@ def update(context):
         dU = solver.ComputeRHS(c.dU, c.U_hat, solver, **c)
         for i in range(3):
             ddU[i] = c.T.backward(dU[i], ddU[i])
-        eps_rhs = -solver.comm.allreduce(sum(ddU*c.U))/np.prod(params.N)[0]
+        eps_rhs = -solver.comm.allreduce(sum(ddU*c.U))/np.prod(params.N)
 
         # Compute dissipation from rate of change of energy
-        e_current = 0.5*L2_norm(solver.comm, c.U)[0]
+        e_current = 0.5*L2_norm(solver.comm, c.U)
         eps_dEdt = (energy_new-energy_old)/2/params.dt
 
         # Estimate of the dissipation using the norm of the vorticity
