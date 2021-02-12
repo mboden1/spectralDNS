@@ -239,15 +239,13 @@ def update(context):
         eps_rhs = -solver.comm.allreduce(sum(ddU*c.U))/np.prod(params.N)
 
         # Compute dissipation from rate of change of energy
-        e_current = 0.5*L2_norm(solver.comm, c.U)
+        e_current = 0.5*energy_new
         eps_dEdt = (energy_new-energy_old)/2/params.dt
 
         # Estimate of the dissipation using the norm of the vorticity
         curl_hat = solver.cross2(curl_hat, c.K, c.U_hat)
         dissipation = energy_fourier(curl_hat, c.T) # Entstrophy
         eps_l2vort = dissipation*params.nu
-
-        print(e_current,0.5*energy_new)
 
         # Compute Re number from dissipation and forcing
         eps_forcing = params.eps_forcing
@@ -268,7 +266,7 @@ def update(context):
                     Re_lam_eps_dissipation=Re_lam_eps_dissipation, Re_lam_eps_forcing=Re_lam_eps_forcing),flush=True)
 
             turb_qty = {'E':e_current,'eps_forcing':eps_forcing,'eps_l2vort':eps_l2vort,
-                        'eps_l2J':eps_l2J,'eps_rhs':eps_rhs,'eps_dEdt':eps_dEdt,
+                        'eps_l2J':eps_l2J,'eps_dEdt':eps_dEdt,
                         'Re_dissip':Re_lam_eps_dissipation,
                         'Re_forcing':Re_lam_eps_forcing
                         }
