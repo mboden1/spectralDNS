@@ -275,7 +275,7 @@ def update(context):
             f['Turbulence/TurbQty'].create_dataset(str(params.tstep), data=str(turb_qty))
             f.close()
 
-        if tstep > 50:
+        if params.tstep > 50:
             config.params.dt = config.params.dt_nominal
         else:
             if solver.rank == 0:
