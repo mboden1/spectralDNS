@@ -328,7 +328,7 @@ if __name__ == "__main__":
     config.params.U_k = U_k
 
     config.params.dt_nominal = T_k/config.params.N[0] # Set time step to 1/N the kolmogorov time step
-    config.params.dt = dt_nominal/10
+    config.params.dt = config.params.dt_nominal/10
 
     config.params.compute_energy = 1   # Compute energy every komlmogorv time scale
     config.params.compute_spectrum = 1 # Compute spectrum every komlmogorv time scale
