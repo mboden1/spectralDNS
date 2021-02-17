@@ -282,7 +282,7 @@ def update(context):
             params.tstep = 1
         else:
             if solver.rank == 0:
-                print('Warm up {}/50'.format(params.tstep),flush=True)
+                print('Warm up {}/50 E:{}'.format(params.tstep,0.5*energy_old),flush=True)
 
 if __name__ == "__main__":
     import h5py
