@@ -275,8 +275,10 @@ def update(context):
             f['Turbulence/TurbQty'].create_dataset(str(params.tstep), data=str(turb_qty))
             f.close()
 
-        if params.tstep > 50:
+        if params.tstep == 10 and params.warm_up==True:
             config.params.dt = config.params.dt_nominal
+            config.params.warm_up = False
+            params.tstep = 1
         else:
             if solver.rank == 0:
                 print('Using dt/10',flush=True)
@@ -329,9 +331,10 @@ if __name__ == "__main__":
 
     config.params.dt_nominal = T_k/config.params.N[0] # Set time step to 1/N the kolmogorov time step
     config.params.dt = config.params.dt_nominal/10
+    config.params.warm_up = True
 
-    config.params.compute_energy = 1   # Compute energy every komlmogorv time scale
-    config.params.compute_spectrum = 1 # Compute spectrum every komlmogorv time scale
+    config.params.compute_energy = config.params.N[0]/32   # Compute energy every 1/32 kolmogorov time scale
+    config.params.compute_spectrum = config.params.N[0]/32 # Compute spectrum every 1/32 kolmogorov time scale
 
     # Initialize turbulence
     initialize(solver, context)
