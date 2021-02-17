@@ -276,13 +276,13 @@ def update(context):
             f.close()
 
     if params.warm_up==True:
-        if params.tstep == 10:
+        if params.tstep == 50:
             config.params.dt = config.params.dt_nominal
             config.params.warm_up = False
             params.tstep = 1
         else:
             if solver.rank == 0:
-                print('Using dt/10',flush=True)
+                print('Warm up {}/50'.format(params.tstep),flush=True)
 
 if __name__ == "__main__":
     import h5py
