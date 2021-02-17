@@ -275,6 +275,9 @@ def update(context):
             f['Turbulence/TurbQty'].create_dataset(str(params.tstep), data=str(turb_qty))
             f.close()
 
+        if tstep > 50:
+            config.params.dt = config.params.dt_nominal
+
 if __name__ == "__main__":
     import h5py
     
@@ -321,7 +324,9 @@ if __name__ == "__main__":
     config.params.T_k = T_k
     config.params.U_k = U_k
 
-    config.params.dt = 0.00005 # Set time step to 1/N the kolmogorov time step
+    config.params.dt_nominal = T_k/config.params.N[0] # Set time step to 1/N the kolmogorov time step
+    config.params.dt = dt_nominal/10
+
     config.params.compute_energy = 1   # Compute energy every komlmogorv time scale
     config.params.compute_spectrum = 1 # Compute spectrum every komlmogorv time scale
 

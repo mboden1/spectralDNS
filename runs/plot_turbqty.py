@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import h5py
 import re, sys
 from collections import defaultdict 
+import numpy as np
 
 def natural_keys(text):
     atoi = lambda text: int(text) if text.isdigit() else text
