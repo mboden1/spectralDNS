@@ -65,10 +65,7 @@ def plot_spectrum(file_path,leave_out=0):
 
 if __name__ == "__main__":  
 
-    if len(sys.argv) > 1:
-        file_path = sys.argv[1] 
-    else:
-
+    file_path = sys.argv[1] 
     
     plot_turbqty(file_path)
     plot_spectrum(file_path)
