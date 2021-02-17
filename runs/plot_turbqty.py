@@ -1,7 +1,7 @@
 import numpy as numpy
 import matplotlib.pyplot as plt
 import h5py
-import re
+import re, sys
 from collections import defaultdict 
 
 def natural_keys(text):
@@ -19,8 +19,8 @@ def plot_turbqty(file_path):
     data = defaultdict(list) 
     for it in iterations:
         dict_it = eval(f['Turbulence/TurbQty'][it][()])
-        for key in sub: 
-            data[key].append(sub[key]) 
+        for key in dict_it: 
+            data[key].append(dict_it[key]) 
     f.close()
 
     idx = [int(it) for it in iterations]
