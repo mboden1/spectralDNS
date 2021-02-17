@@ -275,13 +275,14 @@ def update(context):
             f['Turbulence/TurbQty'].create_dataset(str(params.tstep), data=str(turb_qty))
             f.close()
 
-        if params.tstep == 10 and params.warm_up==True:
-            config.params.dt = config.params.dt_nominal
-            config.params.warm_up = False
-            params.tstep = 1
-        else:
-            if solver.rank == 0:
-                print('Using dt/10',flush=True)
+        if params.warm_up==True:
+            if params.tstep == 10:
+                config.params.dt = config.params.dt_nominal
+                config.params.warm_up = False
+                params.tstep = 1
+            else:
+                if solver.rank == 0:
+                    print('Using dt/10',flush=True)
 
 if __name__ == "__main__":
     import h5py
