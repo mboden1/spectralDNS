@@ -210,13 +210,13 @@ def update(context):
         c.W_hat = solver.cross2(c.W_hat, c.K, c.U_hat)
     # ------------------------------------------------------------------------ #
 
-    if params.tstep % params.compute_spectrum == 0:
+    if params.warm_up == False and params.tstep % params.compute_spectrum == 0:
         Ek, _, _, _, _ = spectrum(solver, context)
         f = h5py.File(context.spectrumname, driver='mpio', comm=solver.comm)
         f['Turbulence/Ek'].create_dataset(str(params.tstep), data=Ek)
         f.close()
 
-    if params.tstep % params.compute_energy == 0:
+    if params.warm_up == False and params.tstep % params.compute_energy == 0:
         solver.get_velocity(**c)
         solver.get_curl(**c)
         if 'NS' in params.solver:
