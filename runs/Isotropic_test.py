@@ -277,6 +277,9 @@ def update(context):
 
         if tstep > 50:
             config.params.dt = config.params.dt_nominal
+        else:
+            if solver.rank == 0:
+                print('Using dt/10',flush=True)
 
 if __name__ == "__main__":
     import h5py
