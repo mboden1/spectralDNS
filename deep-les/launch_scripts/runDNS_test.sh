@@ -10,8 +10,6 @@
 #SBATCH --partition=normal
 #SBATCH --constraint=gpu
 #SBATCH --job-name=DNStransient_test
-#SBATCH --output=/scratch/snx3000/mboden/spectralDNS/deep-les/results/DNS_transient/_logs/DNS_transient_out_JID%j_A%a.txt
-#SBATCH --error=/scratch/snx3000/mboden/spectralDNS/deep-les/results/DNS_transient/_logs/DNS_transient_err_JID%j_A%a.txt
 
 # ======START===== #
 
