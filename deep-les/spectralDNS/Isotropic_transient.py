@@ -312,6 +312,7 @@ if __name__ == "__main__":
     config.triplyperiodic.add_argument("--forcing_mode", type=str, default="constant_eps")
     config.triplyperiodic.add_argument("--init_mode", type=str, default="Lamorgese") # Lamorgese or Novati
     config.triplyperiodic.add_argument("--run", type=int, default=1) # Lamorgese or Novati
+    config.triplyperiodic.add_argument("--dt_ratio", type=int, default=1) # Lamorgese or Novati
 
     # ----------------------------- Get solver  ------------------------------ #
     solver = get_solver(update=update, mesh="triplyperiodic")
