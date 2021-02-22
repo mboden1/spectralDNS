@@ -13,9 +13,9 @@ default_params = {
 }
 
 run_params = {
-'Re_lam':[60,80,100,120,140],
-'dt_ratio':[1,2,5,10],
-'run':[1,2,3]
+'Re_lam':[60,80,100,120,140], # 5 
+'dt_ratio':[1,2,5,10],        # 4 
+'run':[1,2,3]                 # 3
 }
 
 greasy_filename = 'runDNStransient.txt'

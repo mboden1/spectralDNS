@@ -189,6 +189,10 @@ def update(context):
     energy_new = energy_fourier(c.U_hat, c.T) # Sum of squares, no 1/2 factor
     energy_lower = energy_fourier(c.U_hat*c.k2_mask, c.T)
 
+    if np.isnan(energy_new):
+        print('Diverging! Stopping...', params.tstep)
+        sys.exit(1)
+
     # Constant energy forcing
     if params.forcing_mode == 'constant_E':
         energy_upper = energy_new - energy_lower
