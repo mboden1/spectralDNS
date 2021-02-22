@@ -1,0 +1,2 @@
+[@ Isotropic_transient.py @] -n /scratch/mboden/spectralDNS/deep-les/spectralDNS/ python3 12 --N 64 64 64 --forcing_mode constant_eps --init_mode Lamorgese --Re_lam 100 --dt_ratio 1 --run 1 NS ;
+[@ Isotropic_transient.py @] -n /scratch/mboden/spectralDNS/deep-les/spectralDNS/ python3 12 --N 64 64 64 --forcing_mode constant_eps --init_mode Lamorgese --Re_lam 100 --dt_ratio 1 --run 2 NS ;
