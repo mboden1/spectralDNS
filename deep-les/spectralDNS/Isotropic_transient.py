@@ -12,7 +12,7 @@ of homogeneous turbulence with hyperviscosity", Physics of Fluids, 17, 1, 015106
 
 """
 from __future__ import print_function
-import warnings
+import warnings, os
 import numpy as np
 from numpy import pi, zeros, sum
 from shenfun import Function
@@ -320,7 +320,8 @@ if __name__ == "__main__":
 
     data_path = '../results/DNS_transient/DNS_N{}_Re{}_dtr{}_{}/'.format(config.params.N[0],
                     config.params.Re_lam,config.params.dt_ratio,str(config.params.run).zfill(2))
-    os.mkdir(data_path)
+    if solver.rank == 0:
+        os.mkdir(data_path)
     context.hdf5file.filename = data_path + '/res'
 
     # ----------------------- Get turbulence parameters  --------------------- #
