@@ -4,7 +4,7 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=mboden@ethz.ch
 #SBATCH --time=20:00:00
-#SBATCH --nodes=60
+#SBATCH --nodes=45
 #SBATCH --ntasks-per-node=12
 #SBATCH --cpus-per-task=1
 #SBATCH --partition=normal
