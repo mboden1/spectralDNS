@@ -1,6 +1,8 @@
 from itertools import product
 
 SCRATCH = '/scratch/snx3000/mboden'
+SCRATCH = '/scratch/mboden'
+
 n_proc = 6 
 
 default_params = {
