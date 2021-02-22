@@ -313,12 +313,13 @@ if __name__ == "__main__":
     config.triplyperiodic.add_argument("--init_mode", type=str, default="Lamorgese") # Lamorgese or Novati
     config.triplyperiodic.add_argument("--run", type=int, default=1) # Lamorgese or Novati
     config.triplyperiodic.add_argument("--dt_ratio", type=int, default=1) # Lamorgese or Novati
+    config.triplyperiodic.add_argument("--save_path", type=str, default='../results/') # Lamorgese or Novati
 
     # ----------------------------- Get solver  ------------------------------ #
     solver = get_solver(update=update, mesh="triplyperiodic")
     context = solver.get_context()
 
-    data_path = '../results/DNS_transient/DNS_N{}_Re{}_dtr{}_{}/'.format(config.params.N[0],
+    data_path = config.params.save_path + '/DNS_N{}_Re{}_dtr{}_{}/'.format(config.params.N[0],
                     config.params.Re_lam,config.params.dt_ratio,str(config.params.run).zfill(2))
     if solver.rank == 0:
         os.mkdir(data_path)

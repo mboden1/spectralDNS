@@ -9,6 +9,7 @@ default_params = {
 'N':['64 64 64'],
 'forcing_mode':['constant_eps'],
 'init_mode':['Lamorgese'],
+'save_path':['../results/test/'],
 }
 
 run_params = {
@@ -27,11 +28,11 @@ print('Number of hyperparameter combinations: {}'.format(len(hyper_params_dictio
 print('/!\\ check --nodes in bash script /!\\')
 
 exec_path=SCRATCH+'/spectralDNS/deep-les/spectralDNS/'
-model_name='md_arnn'
 with open('./greasy_tasks/'+greasy_filename, 'w') as file:
     for hyper_param_dict_case in hyper_params_dictionary_list:
         command = '[@ {:} @] -n {:} python3 {}'.format(case_script,exec_path, n_proc)
         for key, value in hyper_param_dict_case.items():
+            print(key,value)
             try:
                 if type(eval(value)) is dict:
                     value = "'"+str(value)+"'" 

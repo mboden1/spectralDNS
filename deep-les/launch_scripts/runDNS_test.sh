@@ -17,4 +17,4 @@
 
 module load daint-gpu cray-fftw h5py
 source ~/myvenv-spectralDNS/bin/activate
-greasy ./greasy_tasks/runDNStransient.txt
+greasy ./greasy_tasks/run_test.txt
