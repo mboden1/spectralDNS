@@ -342,12 +342,13 @@ if __name__ == "__main__":
 
     # ---------------------------- Time step info  --------------------------- #
 
-    config.params.dt_nominal = T_k/config.params.N[0]/config.params.dt_ratio # Set time step to 1/N the kolmogorov time step
+    config.params.dt_nominal = T_k/config.params.N[0]/config.params.dt_ratio # Set time step to 1/(dt_ratio*N) the kolmogorov time step
     config.params.dt = config.params.dt_nominal/10
     config.params.warm_up = True
 
-    config.params.compute_energy = config.params.N[0]/32   # Compute energy every 1/32 kolmogorov time scale
-    config.params.compute_spectrum = config.params.N[0]/32 # Compute spectrum every 1/32 kolmogorov time scale
+    config.params.compute_energy = config.params.dt_ratio*config.params.N[0]/32   # Compute energy every 1/32 kolmogorov time scale
+    config.params.compute_spectrum = config.params.dt_ratio*config.params.N[0]/32 # Compute spectrum every 1/32 kolmogorov time scale
+    config.params.write_result = config.params.dt_ratio*config.params.N[0] # Save field every integral time step
 
     # ------------------------ Initialize turbulence ------------------------- #
     initialize(solver, context)
