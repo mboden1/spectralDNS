@@ -317,7 +317,7 @@ if __name__ == "__main__":
     solver = get_solver(update=update, mesh="triplyperiodic")
     context = solver.get_context()
 
-    data_path = '../data/DNS_transient/DNS_N{}_Re{}_dtr{}_{}/'.format(config.params.N,
+    data_path = '../results/DNS_transient/DNS_N{}_Re{}_dtr{}_{}/'.format(config.params.N,
                                                                     config.params.Re_lam,
                                                                     str(config.params.run).zfill(2))
     os.mkdir(data_path)

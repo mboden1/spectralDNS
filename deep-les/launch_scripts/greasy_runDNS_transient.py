@@ -3,7 +3,7 @@ from itertools import product
 SCRATCH = '/scratch/snx3000/mboden'
 SCRATCH = '/scratch/mboden'
 
-n_proc = 6 
+n_proc = 12 
 
 default_params = {
 'N':['256 256 256'],
