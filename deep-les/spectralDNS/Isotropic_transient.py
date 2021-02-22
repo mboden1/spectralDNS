@@ -363,7 +363,7 @@ if __name__ == "__main__":
     T_I = L_I/np.sqrt(2*E/3)
     config.params.L_I = L_I
     config.params.T_I = T_I
-    config.params.T = int(30*T_I)
+    config.params.T = int(1000*T_I)
 
     context.spectrumname = context.hdf5file.filename+"_spectrum.h5"
     f = h5py.File(context.spectrumname, mode='w', driver='mpio', comm=solver.comm)
