@@ -30,7 +30,7 @@ print('/!\\ check --nodes in bash script /!\\')
 exec_path=SCRATCH+'/spectralDNS/deep-les/spectralDNS/'
 with open('./greasy_tasks/'+greasy_filename, 'w') as file:
     for hyper_param_dict_case in hyper_params_dictionary_list:
-        command = '[@ {:} @] -n {:} python3 {}'.format(case_script,exec_path, n_proc)
+        command = '[@ {:} @] -n {:} python3 {}'.format(exec_path, n_proc, case_script)
         for key, value in hyper_param_dict_case.items():
             print(key,value)
             try:
