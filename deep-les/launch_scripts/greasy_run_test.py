@@ -6,7 +6,7 @@ SCRATCH = '/scratch/snx3000/mboden'
 n_proc = 12 
 
 default_params = {
-'N':['64 64 64'],
+'N':['256 256 256'],
 'forcing_mode':['constant_eps'],
 'init_mode':['Lamorgese'],
 'save_path':['../results/test/'],
