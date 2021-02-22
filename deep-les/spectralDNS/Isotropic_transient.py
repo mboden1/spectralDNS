@@ -280,7 +280,7 @@ def update(context):
             f.close()
 
     if params.warm_up==True:
-        if params.tstep == 50:
+        if params.tstep == 2:
             config.params.dt = config.params.dt_nominal
             config.params.warm_up = False
             params.tstep = 1
