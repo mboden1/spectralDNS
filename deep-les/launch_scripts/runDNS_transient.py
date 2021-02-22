@@ -31,7 +31,7 @@ with open('./greasy_tasks/runDNStransient.txt', 'w') as file:
                 if type(eval(value)) is dict:
                     value = "'"+str(value)+"'" 
             except:
-                print(' ')
+                print('')
 
             command += ' --{:} {:}'.format(key, value)
         command+=' NS ;\n'
