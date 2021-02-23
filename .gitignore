@@ -27,4 +27,5 @@ spectralDNS/shenGeneralBCs/*.*
 spectralDNS/optimization/cython_*.pyx
 spectralDNS/optimization/*_double.py
 spectralDNS/optimization/*_single.py
-./deep-les/results/
+deep-les/results/
+deep-les/launch_scripts/greasy_tasks/*

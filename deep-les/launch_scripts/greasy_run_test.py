@@ -15,7 +15,7 @@ default_params = {
 run_params = {
 'Re_lam':[100],
 'dt_ratio':[1],
-'run':[1,2]
+'run':[3,4]
 }
 
 greasy_filename = 'run_test.txt'
