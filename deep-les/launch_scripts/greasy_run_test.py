@@ -14,7 +14,7 @@ default_params = {
 
 run_params = {
 'Re_lam':[100],
-'dt_ratio':[1],
+'dt_ratio':[2],
 'run':[3,4]
 }
 

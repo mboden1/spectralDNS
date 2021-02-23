@@ -13,6 +13,6 @@
 
 # ======START===== #
 
-module load daint-gpu cray-fftw h5py
+module load daint-gpu cray-fftw h5py GREASY
 source ~/myvenv-spectralDNS/bin/activate
 greasy ./greasy_tasks/run_test.txt
